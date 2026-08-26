@@ -18,13 +18,9 @@ por login, protegidos por autenticação JWT e senhas com hash BCrypt.
 
 ## 🖼️ Prints
 
-> Substitua os placeholders abaixo por screenshots reais do sistema rodando
-> (`docs/screenshots/*.png`) antes de publicar — veja o passo a passo no final
-> deste README.
-
 | Dashboard | Vitrine pública | Login |
 |:---:|:---:|:---:|
-| `docs/screenshots/dashboard.png` | `docs/screenshots/loja.png` | `docs/screenshots/login.png` |
+| ![Dashboard](docs/screenshots/dashboard.jpg) | ![Vitrine pública](docs/screenshots/loja.jpg) | ![Login](docs/screenshots/login.jpg) |
 
 ---
 

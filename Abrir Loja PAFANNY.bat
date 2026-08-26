@@ -1,6 +1,14 @@
 @echo off
 title PAFANNY - Sistema (nao feche esta janela)
 cd /d "%~dp0"
+
+if not exist "%~dp0.env.producao.bat" (
+    powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0gerar-credenciais.ps1"
+    pause
+)
+
+call "%~dp0.env.producao.bat"
+
 echo.
 echo  ============================================
 echo   Iniciando o sistema PAFANNY...

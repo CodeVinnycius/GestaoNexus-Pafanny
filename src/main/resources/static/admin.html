@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GestãoNexus — Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+  <meta name="theme-color" content="#0e0f11"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="GestãoNexus"/>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="apple-touch-icon" href="/icons/icon-192x192.svg"/>
+  <link rel="icon" type="image/svg+xml" href="/icons/icon-192x192.svg"/>
+</head>
+<body>
+<div id="toast" class="toast" aria-live="polite"></div>
+
+<aside class="sidebar">
+  <div class="sidebar__logo">
+    <span class="sidebar__logo-icon">⬡</span>
+    <span class="sidebar__logo-text">Gestão<strong>Nexus</strong></span>
+  </div>
+  <nav class="sidebar__nav">
+    <a href="#" class="sidebar__link active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Empresas
+    </a>
+  </nav>
+  <div class="sidebar__footer">
+    <div style="font-size:.75rem;color:var(--text-2);margin-bottom:10px;" id="admin-nome"></div>
+    <button class="btn btn--ghost" style="width:100%;font-size:.8rem;" id="btn-logout">Sair</button>
+  </div>
+</aside>
+
+<button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+
+<main class="main">
+  <section class="section active" id="section-empresas">
+    <header class="section__header">
+      <div>
+        <p class="section__label">Painel administrativo</p>
+        <h1 class="section__title">Empresas</h1>
+      </div>
+      <button class="btn btn--primary" id="btn-nova-empresa">+ Nova empresa</button>
+    </header>
+
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Login</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-empresas">
+          <tr><td colspan="4" class="table__empty">Carregando…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<!-- Modal empresa -->
+<div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal__header">
+      <h2 class="modal__title" id="modal-title">Nova empresa</h2>
+      <button class="modal__close" id="modal-close">✕</button>
+    </div>
+    <form class="modal__form" id="modal-form" novalidate>
+      <div class="field">
+        <label class="field__label">Nome da empresa <span class="required">*</span></label>
+        <input class="field__input" type="text" id="f-nome" placeholder="Ex: Empresa ABC" maxlength="100"/>
+        <p class="field__error" id="err-nome"></p>
+      </div>
+      <div class="field">
+        <label class="field__label">Login <span class="required">*</span></label>
+        <input class="field__input" type="text" id="f-login" placeholder="Ex: empresa-abc" maxlength="50"/>
+        <p class="field__error" id="err-login"></p>
+      </div>
+      <div class="field">
+        <label class="field__label" id="label-senha">Senha <span class="required">*</span></label>
+        <input class="field__input" type="password" id="f-senha" placeholder="Mínimo 4 caracteres"/>
+        <p class="field__error" id="err-senha"></p>
+      </div>
+      <div class="field" id="campo-ativo" style="display:none;">
+        <label class="field__label">Status</label>
+        <select class="field__input" id="f-ativo">
+          <option value="true">Ativo</option>
+          <option value="false">Inativo</option>
+        </select>
+      </div>
+      <div class="modal__footer">
+        <button type="button" class="btn btn--ghost" id="btn-cancelar">Cancelar</button>
+        <button type="submit" class="btn btn--primary" id="btn-salvar">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal confirmar remoção -->
+<div class="modal-overlay" id="confirm-overlay" role="dialog" aria-modal="true">
+  <div class="modal modal--sm">
+    <div class="modal__header">
+      <h2 class="modal__title">Remover empresa</h2>
+      <button class="modal__close" id="confirm-close">✕</button>
+    </div>
+    <p class="confirm__text">Tem certeza que deseja remover <strong id="confirm-nome"></strong>?<br>
+    <small style="color:var(--danger);">Todos os produtos desta empresa serão removidos.</small></p>
+    <div class="modal__footer modal__footer--pad">
+      <button class="btn btn--ghost" id="confirm-cancel">Cancelar</button>
+      <button class="btn btn--danger" id="confirm-ok">Remover</button>
+    </div>
+  </div>
+</div>
+
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<script>
+  const token = localStorage.getItem('token');
+  const admin = localStorage.getItem('admin') === 'true';
+  if (!token || !admin) window.location.href = '/login.html';
+
+  document.getElementById('admin-nome').textContent = 'Admin: ' + (localStorage.getItem('login') || '');
+
+  const API = '/api/admin/empresas';
+  const h   = () => ({ 'Content-Type':'application/json', 'Authorization':'Bearer ' + token });
+
+  let empresas = [];
+  let modoEdicao = false;
+  let idEditando = null;
+  let idRemover  = null;
+
+  async function carregar() {
+    try {
+      const res = await fetch(API, { headers: h() });
+      if (res.status === 403) { window.location.href = '/login.html'; return; }
+      empresas = await res.json();
+      renderizar();
+    } catch { toast('Erro ao carregar empresas.', 'error'); }
+  }
+
+  function renderizar() {
+    const tbody = document.getElementById('tbody-empresas');
+    // Filtra para não mostrar o próprio admin na lista
+    const lista = empresas.filter(e => !e.admin);
+    if (!lista.length) {
+      tbody.innerHTML = '<tr><td colspan="4" class="table__empty">Nenhuma empresa cadastrada.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = lista.map(e => `
+      <tr>
+        <td>${esc(e.nome)}</td>
+        <td><code style="font-family:var(--font-mono);font-size:.8rem;color:var(--text-2)">${esc(e.login)}</code></td>
+        <td>
+          <span style="
+            display:inline-block;padding:2px 10px;border-radius:99px;font-size:.75rem;font-weight:500;
+            background:${e.ativo ? 'var(--accent-dim)' : 'var(--danger-dim)'};
+            color:${e.ativo ? 'var(--accent)' : 'var(--danger)'}">
+            ${e.ativo ? 'Ativo' : 'Inativo'}
+          </span>
+        </td>
+        <td>
+          <div class="actions">
+            <button class="btn-icon" onclick="abrirEdicao(${e.id})">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Editar
+            </button>
+            <button class="btn-icon btn-icon--danger" onclick="confirmarRemover(${e.id}, '${esc(e.nome)}')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+              Remover
+            </button>
+          </div>
+        </td>
+      </tr>`).join('');
+  }
+
+  function abrirModal(modo, empresa = null) {
+    modoEdicao = modo === 'editar';
+    limpar();
+    if (modoEdicao && empresa) {
+      document.getElementById('modal-title').textContent = 'Editar empresa';
+      idEditando = empresa.id;
+      document.getElementById('f-nome').value  = empresa.nome;
+      document.getElementById('f-login').value = empresa.login;
+      document.getElementById('label-senha').innerHTML = 'Nova senha <span style="color:var(--text-3);font-weight:400">(deixe vazio para manter)</span>';
+      document.getElementById('campo-ativo').style.display = '';
+      document.getElementById('f-ativo').value = empresa.ativo ? 'true' : 'false';
+    } else {
+      document.getElementById('modal-title').textContent = 'Nova empresa';
+      idEditando = null;
+      document.getElementById('label-senha').innerHTML = 'Senha <span class="required">*</span>';
+      document.getElementById('campo-ativo').style.display = 'none';
+    }
+    document.getElementById('modal-overlay').classList.add('open');
+    setTimeout(() => document.getElementById('f-nome').focus(), 80);
+  }
+
+  function fecharModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
+    limpar();
+  }
+
+  function limpar() {
+    document.getElementById('modal-form').reset();
+    ['nome','login','senha'].forEach(c => {
+      const el = document.getElementById('err-' + c);
+      if (el) el.textContent = '';
+      const inp = document.getElementById('f-' + c);
+      if (inp) inp.classList.remove('error');
+    });
+    document.getElementById('btn-salvar').disabled = false;
+    document.getElementById('btn-salvar').textContent = 'Salvar';
+  }
+
+  function abrirEdicao(id) {
+    const e = empresas.find(x => x.id === id);
+    if (e) abrirModal('editar', e);
+  }
+
+  function confirmarRemover(id, nome) {
+    idRemover = id;
+    document.getElementById('confirm-nome').textContent = nome;
+    document.getElementById('confirm-overlay').classList.add('open');
+  }
+
+  document.getElementById('btn-nova-empresa').onclick = () => abrirModal('novo');
+  document.getElementById('modal-close').onclick = fecharModal;
+  document.getElementById('btn-cancelar').onclick = fecharModal;
+  document.getElementById('modal-overlay').onclick = e => { if (e.target === document.getElementById('modal-overlay')) fecharModal(); };
+
+  document.getElementById('modal-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const nome  = document.getElementById('f-nome').value.trim();
+    const login = document.getElementById('f-login').value.trim();
+    const senha = document.getElementById('f-senha').value;
+    const ativo = document.getElementById('f-ativo').value === 'true';
+
+    let ok = true;
+    if (!nome)  { document.getElementById('err-nome').textContent  = 'Obrigatório.'; document.getElementById('f-nome').classList.add('error'); ok = false; }
+    if (!login) { document.getElementById('err-login').textContent = 'Obrigatório.'; document.getElementById('f-login').classList.add('error'); ok = false; }
+    if (!modoEdicao && !senha) { document.getElementById('err-senha').textContent = 'Obrigatório.'; document.getElementById('f-senha').classList.add('error'); ok = false; }
+    if (!ok) return;
+
+    document.getElementById('btn-salvar').disabled    = true;
+    document.getElementById('btn-salvar').textContent = 'Salvando…';
+
+    try {
+      let res;
+      if (modoEdicao) {
+        const body = { nome, login, ativo };
+        if (senha) body.senha = senha;
+        res = await fetch(`${API}/${idEditando}`, { method:'PUT', headers:h(), body:JSON.stringify(body) });
+      } else {
+        res = await fetch(API, { method:'POST', headers:h(), body:JSON.stringify({ nome, login, senha }) });
+      }
+      const data = await res.json();
+      if (!res.ok) { toast(data.erro || 'Erro ao salvar.', 'error'); return; }
+      toast(modoEdicao ? 'Empresa atualizada!' : 'Empresa cadastrada!', 'success');
+      fecharModal();
+      await carregar();
+    } catch { toast('Erro de conexão.', 'error'); }
+    finally {
+      document.getElementById('btn-salvar').disabled    = false;
+      document.getElementById('btn-salvar').textContent = 'Salvar';
+    }
+  });
+
+  document.getElementById('confirm-close').onclick  = () => document.getElementById('confirm-overlay').classList.remove('open');
+  document.getElementById('confirm-cancel').onclick = () => document.getElementById('confirm-overlay').classList.remove('open');
+  document.getElementById('confirm-ok').onclick = async () => {
+    document.getElementById('confirm-overlay').classList.remove('open');
+    try {
+      const res = await fetch(`${API}/${idRemover}`, { method:'DELETE', headers:h() });
+      const data = await res.json();
+      toast(res.ok ? 'Empresa removida.' : (data.erro || 'Erro.'), res.ok ? 'success' : 'error');
+      if (res.ok) await carregar();
+    } catch { toast('Erro de conexão.', 'error'); }
+  };
+
+  document.getElementById('btn-logout').onclick = () => {
+    localStorage.clear();
+    window.location.href = '/login.html';
+  };
+
+  // Sidebar mobile
+  const sidebar = document.querySelector('.sidebar');
+  document.getElementById('hamburger').onclick = () => {
+    sidebar.classList.toggle('open');
+    document.getElementById('sidebar-overlay').classList.toggle('open');
+  };
+  document.getElementById('sidebar-overlay').onclick = () => {
+    sidebar.classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.remove('open');
+  };
+
+  // Toast
+  let tt;
+  function toast(msg, tipo = 'success') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = `toast ${tipo} show`;
+    clearTimeout(tt);
+    tt = setTimeout(() => el.classList.remove('show'), 3500);
+  }
+
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  carregar();
+</script>
+</body>
+</html>

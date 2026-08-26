@@ -1,0 +1,70 @@
+# ══════════════════════════════════════════════════════════════
+#  GestãoNexus — .gitignore
+#  Nada sensível (senha, chave, banco de dados) deve ir pro Git.
+# ══════════════════════════════════════════════════════════════
+
+# ── Build (Maven) ─────────────────────────────────────────────
+target/
+*.class
+*.jar
+*.war
+!.mvn/wrapper/maven-wrapper.jar
+
+# ── Segredos — NUNCA versionar ───────────────────────────────
+.env
+.env.*
+!.env.example
+*.env
+application-local.properties
+application-prod.properties
+application-secrets.properties
+application.properties.local
+secrets/
+credentials.json
+*.pem
+*.p12
+*.jks
+*.key
+*.crt
+
+# ── Banco de dados (contém dados reais de clientes/empresa) ──
+data/
+*.mv.db
+*.trace.db
+*.db
+*.sqlite
+*.sqlite3
+
+# ── Uploads locais (fotos de produto enviadas em runtime) ────
+uploads/
+
+# ── IDEs ──────────────────────────────────────────────────────
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.classpath
+.project
+*.suo
+*.user
+.factorypath
+
+# ── Sistema operacional ────────────────────────────────────────
+.DS_Store
+Thumbs.db
+Desktop.ini
+ehthumbs.db
+
+# ── Logs ────────────────────────────────────────────────────────
+*.log
+logs/
+spring.log
+
+# ── Diversos ──────────────────────────────────────────────────
+*.bak
+*.tmp
+*.orig
+*.swp
+.env.backup

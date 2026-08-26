@@ -1,0 +1,50 @@
+# ══════════════════════════════════════════════════════════════
+#  GestãoNexus — Variáveis de ambiente (EXEMPLO)
+#
+#  Este arquivo é só de referência — NÃO é lido pelo Spring Boot.
+#  O arquivo real usado pela aplicação é:
+#    src/main/resources/application.properties
+#  e ele já lê tudo daqui de baixo via variável de ambiente.
+#
+#  Como usar:
+#   1. Copie os nomes de variável abaixo.
+#   2. Defina-os no seu ambiente (terminal, systemd, Docker,
+#      painel do serviço de hospedagem, etc.) com valores REAIS.
+#   3. Nunca coloque valores reais neste arquivo nem em nenhum
+#      arquivo versionado no Git.
+# ══════════════════════════════════════════════════════════════
+
+# ── Servidor ─────────────────────────────────────────────────
+SERVER_PORT=8080
+
+# ── Banco de dados ───────────────────────────────────────────
+# Padrão: H2 embutido (não precisa configurar nada em dev).
+# Em produção (ex.: MySQL), defina as 4 variáveis abaixo:
+DB_URL=jdbc:mysql://localhost:3306/gestaonexus
+DB_USERNAME=usuario_do_banco
+DB_PASSWORD=SUA_SENHA_FORTE_AQUI
+DB_DRIVER=com.mysql.cj.jdbc.Driver
+# DB_DIALECT=org.hibernate.dialect.MySQLDialect
+
+# ── JWT (autenticação) ───────────────────────────────────────
+# OBRIGATÓRIO. Gere uma chave forte com:
+#   openssl rand -base64 32
+APP_JWT_SECRET=GERE_UMA_CHAVE_BASE64_DE_32_BYTES_AQUI
+# Tempo de expiração do token em milissegundos (padrão: 8h)
+APP_JWT_EXPIRATION=28800000
+
+# ── Admin padrão (criado automaticamente na 1ª inicialização) ─
+APP_ADMIN_LOGIN=admin
+# OBRIGATÓRIO. Use uma senha forte — nunca "admin123".
+APP_ADMIN_SENHA=SUA_SENHA_FORTE_AQUI
+
+# ── Loja pública (/loja.html) ────────────────────────────────
+# Login da empresa cujos produtos aparecem na vitrine pública
+APP_LOJA_LOGIN=minha-loja
+# WhatsApp em formato internacional, só números: 55DDDNUMERO
+APP_LOJA_WHATSAPP=5511999999999
+# Instagram da marca, sem "@"
+APP_LOJA_INSTAGRAM=minhaloja
+
+# ── Uploads (fotos de produto) ───────────────────────────────
+APP_UPLOADS_DIR=./data/uploads

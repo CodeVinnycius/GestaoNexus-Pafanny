@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GestãoNexus — Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+  <style>
+    body { display:flex; align-items:center; justify-content:center; min-height:100vh; background:var(--bg); margin:0; }
+    .login-card {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius); padding:40px 36px; width:100%; max-width:380px;
+      box-shadow:var(--shadow);
+    }
+    .login-logo { text-align:center; margin-bottom:32px; }
+    .login-logo-icon { font-size:32px; color:var(--accent); display:block; margin-bottom:8px; }
+    .login-logo-text { font-size:1.25rem; color:var(--text-2); }
+    .login-logo-text strong { color:var(--text-1); }
+    .login-title { font-size:.8125rem; font-weight:500; color:var(--text-2); text-align:center; margin-bottom:28px; text-transform:uppercase; letter-spacing:.08em; }
+    .field { display:flex; flex-direction:column; gap:6px; margin-bottom:16px; }
+    .field__label { font-size:.8125rem; font-weight:500; color:var(--text-2); }
+    .field__input {
+      background:var(--surface-2); border:1px solid var(--border);
+      border-radius:var(--radius-sm); color:var(--text-1);
+      font-family:var(--font); font-size:.9rem; padding:11px 14px;
+      outline:none; transition:border-color var(--dur); width:100%; box-sizing:border-box;
+    }
+    .field__input:focus { border-color:var(--accent); }
+    .field__input.error { border-color:var(--danger); }
+    .btn-login {
+      width:100%; padding:12px; background:var(--accent); color:#0a1a0f;
+      border:none; border-radius:var(--radius-sm); font-family:var(--font);
+      font-size:.9375rem; font-weight:600; cursor:pointer; margin-top:8px;
+      transition:opacity .18s;
+    }
+    .btn-login:hover { opacity:.85; }
+    .btn-login:disabled { opacity:.45; cursor:not-allowed; }
+    .msg-erro { font-size:.8125rem; color:var(--danger); text-align:center; margin-top:14px; min-height:18px; }
+  </style>
+  <meta name="theme-color" content="#0e0f11"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="GestãoNexus"/>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="apple-touch-icon" href="/icons/icon-192x192.svg"/>
+  <link rel="icon" type="image/svg+xml" href="/icons/icon-192x192.svg"/>
+</head>
+<body>
+  <div class="login-card">
+    <div class="login-logo">
+      <span class="login-logo-icon">⬡</span>
+      <span class="login-logo-text">Gestão<strong>Nexus</strong></span>
+    </div>
+    <p class="login-title">Acesso ao sistema</p>
+
+    <form id="form-login" novalidate>
+      <div class="field">
+        <label class="field__label" for="login">Login</label>
+        <input class="field__input" type="text" id="login" placeholder="seu-login" autocomplete="username"/>
+      </div>
+      <div class="field">
+        <label class="field__label" for="senha">Senha</label>
+        <input class="field__input" type="password" id="senha" placeholder="••••••••" autocomplete="current-password"/>
+      </div>
+      <button class="btn-login" type="submit" id="btn-entrar">Entrar</button>
+      <p class="msg-erro" id="msg-erro"></p>
+    </form>
+  </div>
+
+  <script>
+    // Se já está logado, redireciona
+    const token = localStorage.getItem('token');
+    if (token) {
+      const admin = localStorage.getItem('admin') === 'true';
+      window.location.href = admin ? '/admin.html' : '/index.html';
+    }
+
+    document.getElementById('form-login').addEventListener('submit', async e => {
+      e.preventDefault();
+      const login = document.getElementById('login').value.trim();
+      const senha = document.getElementById('senha').value;
+      const btn   = document.getElementById('btn-entrar');
+      const erro  = document.getElementById('msg-erro');
+
+      erro.textContent = '';
+      if (!login || !senha) { erro.textContent = 'Preencha login e senha.'; return; }
+
+      btn.disabled    = true;
+      btn.textContent = 'Entrando…';
+
+      try {
+        const res  = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ login, senha })
+        });
+        const data = await res.json();
+
+        if (!res.ok) { erro.textContent = data.erro || 'Erro ao fazer login.'; return; }
+
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('nome',  data.nome);
+        localStorage.setItem('login', data.login);
+        localStorage.setItem('admin', data.admin);
+
+        window.location.href = data.admin ? '/admin.html' : '/index.html';
+
+      } catch {
+        erro.textContent = 'Não foi possível conectar ao servidor.';
+      } finally {
+        btn.disabled    = false;
+        btn.textContent = 'Entrar';
+      }
+    });
+  </script>
+<script>
+  // Registra o Service Worker (PWA)
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js")
+        .then(r => console.log("SW registrado:", r.scope))
+        .catch(e => console.warn("SW falhou:", e));
+    });
+  }
+  // Banner de instalação (Android Chrome / Edge)
+  let deferredPrompt;
+  window.addEventListener("beforeinstallprompt", e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const banner = document.getElementById("pwa-banner");
+    if (banner) banner.style.display = "flex";
+  });
+  window.addEventListener("appinstalled", () => {
+    const banner = document.getElementById("pwa-banner");
+    if (banner) banner.style.display = "none";
+    deferredPrompt = null;
+  });
+  function instalarPWA() {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => {
+      deferredPrompt = null;
+      const banner = document.getElementById("pwa-banner");
+      if (banner) banner.style.display = "none";
+    });
+  }
+</script>
+</body>
+</html>

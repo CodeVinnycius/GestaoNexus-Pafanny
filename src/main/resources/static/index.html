@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GestãoNexus</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+  <meta name="theme-color" content="#0e0f11"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="GestãoNexus"/>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="apple-touch-icon" href="/icons/icon-192x192.svg"/>
+  <link rel="icon" type="image/svg+xml" href="/icons/icon-192x192.svg"/>
+</head>
+<body>
+<div id="toast" class="toast" aria-live="polite"></div>
+
+<aside class="sidebar">
+  <div class="sidebar__logo">
+    <span class="sidebar__logo-icon">⬡</span>
+    <span class="sidebar__logo-text">Gestão<strong>Nexus</strong></span>
+  </div>
+  <nav class="sidebar__nav">
+    <a href="#" class="sidebar__link active" data-section="dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a>
+    <a href="#" class="sidebar__link" data-section="produtos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+      Produtos
+    </a>
+    <a href="#" class="sidebar__link" data-section="vendas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Movimentações
+    </a>
+    <a href="#" class="sidebar__link" data-section="historico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Histórico
+    </a>
+  </nav>
+  <div class="sidebar__footer">
+    <div class="sidebar__company" id="empresa-nome"></div>
+    <a href="/loja.html" target="_blank" rel="noopener" class="btn btn--ghost" style="width:100%;font-size:.8rem;margin-top:8px;text-decoration:none;">Ver loja online ↗</a>
+    <button class="btn btn--ghost" style="width:100%;font-size:.8rem;margin-top:8px;" id="btn-logout">Sair</button>
+  </div>
+</aside>
+
+<button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+
+<main class="main">
+
+  <!-- ══ DASHBOARD ══════════════════════════════ -->
+  <section class="section active" id="section-dashboard">
+    <header class="section__header">
+      <div><p class="section__label">Visão geral</p><h1 class="section__title">Dashboard</h1></div>
+    </header>
+
+    <div class="cards" id="cards-dashboard">
+      <div class="card card--accent">
+        <p class="card__label">Produtos cadastrados</p>
+        <p class="card__value" id="stat-total">—</p>
+      </div>
+      <div class="card">
+        <p class="card__label">Unidades em estoque</p>
+        <p class="card__value" id="stat-unidades">—</p>
+      </div>
+      <div class="card">
+        <p class="card__label">Custo total (estoque)</p>
+        <p class="card__value card__value--sm" id="stat-custo">—</p>
+      </div>
+      <div class="card">
+        <p class="card__label">Valor de venda (estoque)</p>
+        <p class="card__value card__value--sm" id="stat-venda">—</p>
+      </div>
+      <div class="card card--green">
+        <p class="card__label">Lucro potencial</p>
+        <p class="card__value card__value--sm" id="stat-lucro">—</p>
+      </div>
+      <div class="card">
+        <p class="card__label">Margem média</p>
+        <p class="card__value" id="stat-margem">—</p>
+      </div>
+      <div class="card">
+        <p class="card__label">Receita de vendas</p>
+        <p class="card__value card__value--sm" id="stat-receita">—</p>
+      </div>
+      <div class="card">
+        <p class="card__label">Top produto</p>
+        <p class="card__value card__value--sm" id="stat-top">—</p>
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <div class="table-header"><h2 class="table-title">Produtos — visão financeira</h2></div>
+      <table class="table">
+        <thead><tr><th>Nome</th><th>Qtd</th><th>Custo unit.</th><th>Preço venda</th><th>Margem</th><th>Lucro pot.</th></tr></thead>
+        <tbody id="tbody-dashboard"><tr><td colspan="6" class="table__empty">Carregando…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ══ PRODUTOS ════════════════════════════════ -->
+  <section class="section" id="section-produtos">
+    <header class="section__header">
+      <div><p class="section__label">Gerenciamento</p><h1 class="section__title">Produtos</h1></div>
+      <button class="btn btn--primary" id="btn-novo">+ Novo produto</button>
+    </header>
+    <div class="toolbar">
+      <div class="search-wrap">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="search" id="search" class="search" placeholder="Buscar por nome…" autocomplete="off"/>
+      </div>
+    </div>
+    <div class="table-wrapper">
+      <table class="table">
+        <thead><tr><th>Nome</th><th>Qtd</th><th>Custo unit.</th><th>Preço venda</th><th>Margem</th><th>Total venda</th><th>Ações</th></tr></thead>
+        <tbody id="tbody-produtos"><tr><td colspan="7" class="table__empty">Carregando…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ══ VENDAS / MOVIMENTAÇÕES ══════════════════ -->
+  <section class="section" id="section-vendas">
+    <header class="section__header">
+      <div><p class="section__label">Registrar</p><h1 class="section__title">Movimentações</h1></div>
+    </header>
+
+    <div class="mov-card">
+      <form id="form-mov" novalidate>
+        <div class="mov-grid">
+          <div class="field">
+            <label class="field__label">Produto <span class="required">*</span></label>
+            <select class="field__input" id="mov-produto">
+              <option value="">Selecione…</option>
+            </select>
+            <p class="field__error" id="err-mov-produto"></p>
+          </div>
+          <div class="field">
+            <label class="field__label">Tipo <span class="required">*</span></label>
+            <select class="field__input" id="mov-tipo">
+              <option value="VENDA">🛒 Venda (saída)</option>
+              <option value="ENTRADA">📦 Entrada de mercadoria</option>
+              <option value="AJUSTE">🔧 Ajuste de estoque</option>
+              <option value="DEVOLUCAO">↩️ Devolução</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field__label">Quantidade <span class="required">*</span></label>
+            <input class="field__input" type="number" id="mov-quantidade" min="1" step="1" placeholder="0"/>
+            <p class="field__error" id="err-mov-qtd"></p>
+          </div>
+          <div class="field">
+            <label class="field__label">Responsável <span class="required">*</span></label>
+            <input class="field__input" type="text" id="mov-responsavel" placeholder="Nome de quem registra" maxlength="100"/>
+            <p class="field__error" id="err-mov-resp"></p>
+          </div>
+          <div class="field field--full">
+            <label class="field__label">Motivo / Observação</label>
+            <input class="field__input" type="text" id="mov-motivo" placeholder="Ex: Venda balcão, reposição mensal…" maxlength="255"/>
+          </div>
+        </div>
+
+        <div id="mov-preview" class="mov-preview" style="display:none">
+          <span id="prev-label"></span>
+          <strong id="prev-valor"></strong>
+        </div>
+
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;">
+          <button type="reset" class="btn btn--ghost" id="btn-mov-limpar">Limpar</button>
+          <button type="submit" class="btn btn--primary" id="btn-mov-registrar">Registrar</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ══ HISTÓRICO ═══════════════════════════════ -->
+  <section class="section" id="section-historico">
+    <header class="section__header">
+      <div><p class="section__label">Rastreabilidade</p><h1 class="section__title">Histórico</h1></div>
+    </header>
+    <div class="toolbar">
+      <select class="field__input" id="filtro-tipo" style="max-width:200px;">
+        <option value="">Todos os tipos</option>
+        <option value="VENDA">Vendas</option>
+        <option value="ENTRADA">Entradas</option>
+        <option value="AJUSTE">Ajustes</option>
+        <option value="DEVOLUCAO">Devoluções</option>
+      </select>
+    </div>
+    <div class="table-wrapper">
+      <table class="table">
+        <thead><tr><th>Data</th><th>Tipo</th><th>Produto</th><th>Qtd</th><th>Vlr unit.</th><th>Total</th><th>Responsável</th><th>Motivo</th></tr></thead>
+        <tbody id="tbody-historico"><tr><td colspan="8" class="table__empty">Carregando…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<!-- Modal Produto -->
+<div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true">
+  <div class="modal modal--wide">
+    <div class="modal__header">
+      <h2 class="modal__title" id="modal-title">Novo produto</h2>
+      <button class="modal__close" id="modal-close">✕</button>
+    </div>
+    <form class="modal__form" id="modal-form" novalidate>
+      <div class="field">
+        <label class="field__label">Nome <span class="required">*</span></label>
+        <input class="field__input" type="text" id="f-nome" placeholder="Ex: Monitor 24pol" maxlength="100"/>
+        <p class="field__error" id="err-nome"></p>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label class="field__label">Quantidade inicial <span class="required">*</span></label>
+          <input class="field__input" type="number" id="f-quantidade" placeholder="0" min="0" step="1"/>
+          <p class="field__error" id="err-quantidade"></p>
+        </div>
+        <div class="field">
+          <label class="field__label">Custo unitário (R$) <span class="required">*</span></label>
+          <input class="field__input" type="number" id="f-custo" placeholder="0.00" min="0" step="0.01"/>
+          <p class="field__error" id="err-custo"></p>
+        </div>
+        <div class="field">
+          <label class="field__label">Preço de venda (R$) <span style="font-weight:400;color:var(--text-3)">(vazio = "Consulte o valor")</span></label>
+          <input class="field__input" type="number" id="f-venda" placeholder="Deixe vazio se ainda não definido" min="0" step="0.01"/>
+          <p class="field__error" id="err-venda"></p>
+        </div>
+      </div>
+      <div id="margem-preview" class="mov-preview" style="display:none;margin-top:0;margin-bottom:16px;"></div>
+
+      <div class="field-row">
+        <div class="field">
+          <label class="field__label">Categoria <span style="font-weight:400;color:var(--text-3)">(linha PAFANNY)</span></label>
+          <input class="field__input" type="text" id="f-categoria" placeholder="Ex: Alcinha Botão" maxlength="60"/>
+        </div>
+        <div class="field">
+          <label class="field__label">Estampa</label>
+          <input class="field__input" type="text" id="f-estampa" placeholder="Ex: Ursinho Pooh Flor Margarida" maxlength="120"/>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label class="field__label">Código <span style="font-weight:400;color:var(--text-3)">(identificador permanente)</span></label>
+          <input class="field__input" type="text" id="f-codigo" placeholder="Ex: pafanny-alcinha-botao-pooh-001" maxlength="80"/>
+        </div>
+        <div class="field">
+          <label class="field__label">Disponibilidade</label>
+          <select class="field__input" id="f-disponibilidade">
+            <option value="CONSULTAR">Consultar (padrão — sem estoque cadastrado)</option>
+            <option value="DISPONIVEL">Disponível</option>
+            <option value="ULTIMAS_UNIDADES">Últimas unidades</option>
+            <option value="INDISPONIVEL">Indisponível</option>
+            <option value="ESGOTADO">Esgotado</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field__label">Descrição <span style="font-weight:400;color:var(--text-3)">(aparece na loja)</span></label>
+        <textarea class="field__input" id="f-descricao" rows="3" maxlength="1000" placeholder="Ex: Pijama longo, tecido macio, estampa floral…" style="min-height:80px;resize:vertical;"></textarea>
+      </div>
+      <label class="toggle-row">
+        <span class="toggle">
+          <input type="checkbox" id="f-visivel-loja"/>
+          <span class="toggle__track"><span class="toggle__thumb"></span></span>
+        </span>
+        <span>Publicar este produto na loja online</span>
+      </label>
+
+      <!-- Só aparece ao editar um produto já salvo (precisa do id) -->
+      <div id="bloco-variacoes" class="bloco-extra" style="display:none">
+        <h3 class="bloco-extra__title">Tamanhos / cores em estoque</h3>
+        <p class="bloco-extra__hint">A quantidade do produto passa a ser a soma das variações abaixo.</p>
+        <div id="lista-variacoes" class="lista-variacoes"></div>
+        <div class="var-add-row">
+          <input class="field__input" id="nv-tamanho" placeholder="Tamanho (ex: P, M, G)" maxlength="20"/>
+          <input class="field__input" id="nv-cor" placeholder="Cor (opcional)" maxlength="40"/>
+          <input class="field__input" id="nv-qtd" type="number" min="0" step="1" placeholder="Qtd"/>
+          <button type="button" class="btn btn--ghost" id="btn-add-variacao">+ Adicionar</button>
+        </div>
+        <p class="field__error" id="err-variacao"></p>
+      </div>
+
+      <div id="bloco-fotos" class="bloco-extra" style="display:none">
+        <h3 class="bloco-extra__title">Fotos do produto</h3>
+        <div id="lista-fotos" class="fotos-grid"></div>
+        <input type="file" id="input-foto" accept="image/jpeg,image/png,image/webp" hidden/>
+        <button type="button" class="btn btn--ghost" id="btn-add-foto">+ Adicionar foto</button>
+        <p class="field__error" id="err-foto"></p>
+      </div>
+
+      <div class="modal__footer">
+        <button type="button" class="btn btn--ghost" id="btn-cancelar">Cancelar</button>
+        <button type="submit" class="btn btn--primary" id="btn-salvar">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal confirmar remoção -->
+<div class="modal-overlay" id="confirm-overlay" role="dialog" aria-modal="true">
+  <div class="modal modal--sm">
+    <div class="modal__header">
+      <h2 class="modal__title">Remover produto</h2>
+      <button class="modal__close" id="confirm-close">✕</button>
+    </div>
+    <p class="confirm__text">Remover <strong id="confirm-nome"></strong>? O histórico de movimentações será mantido.</p>
+    <div class="modal__footer modal__footer--pad">
+      <button class="btn btn--ghost" id="confirm-cancel">Cancelar</button>
+      <button class="btn btn--danger" id="confirm-ok">Remover</button>
+    </div>
+  </div>
+</div>
+
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<!-- PWA Install Banner -->
+<div id="pwa-banner" class="pwa-banner" style="display:none">
+  <div class="pwa-banner__icon">⬡</div>
+  <div class="pwa-banner__text">
+    <strong>Instalar GestãoNexus</strong>
+    <span>Adicionar à tela inicial — funciona offline</span>
+  </div>
+  <div class="pwa-banner__actions">
+    <button class="btn btn--ghost" style="padding:8px 12px;min-height:38px;font-size:.8rem"
+            onclick="document.getElementById('pwa-banner').style.display='none'">Não</button>
+    <button class="btn btn--primary" style="padding:8px 12px;min-height:38px;font-size:.8rem"
+            onclick="instalarPWA()">Instalar</button>
+  </div>
+</div>
+<script src="/js/script.js"></script>
+<script>
+  // Registra o Service Worker (PWA)
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js")
+        .then(r => console.log("SW registrado:", r.scope))
+        .catch(e => console.warn("SW falhou:", e));
+    });
+  }
+  // Banner de instalação (Android Chrome / Edge)
+  let deferredPrompt;
+  window.addEventListener("beforeinstallprompt", e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const banner = document.getElementById("pwa-banner");
+    if (banner) banner.style.display = "flex";
+  });
+  window.addEventListener("appinstalled", () => {
+    const banner = document.getElementById("pwa-banner");
+    if (banner) banner.style.display = "none";
+    deferredPrompt = null;
+  });
+  function instalarPWA() {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => {
+      deferredPrompt = null;
+      const banner = document.getElementById("pwa-banner");
+      if (banner) banner.style.display = "none";
+    });
+  }
+</script>
+</body>
+</html>

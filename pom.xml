@@ -16,8 +16,8 @@
   <groupId>com.estoque</groupId>
   <artifactId>estoque-java</artifactId>
   <version>1.0.0</version>
-  <name>EstoqueJava</name>
-  <description>Sistema de controle de estoque multi-tenant com Spring Boot</description>
+  <name>GestaoNexus</name>
+  <description>Sistema de gestao de estoque multi-tenant com Spring Boot</description>
   <packaging>jar</packaging>
 
   <properties>

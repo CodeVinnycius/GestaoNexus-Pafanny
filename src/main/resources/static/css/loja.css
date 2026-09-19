@@ -39,6 +39,7 @@ html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
   --ease:        cubic-bezier(.22, 1, .36, 1);
   --dur:         260ms;
   --touch-min:   46px;
+  --container-max: 1180px;
 }
 
 ::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -59,7 +60,7 @@ img { max-width: 100%; display: block; }
 a { color: inherit; }
 button { font-family: inherit; }
 
-.container { max-width: 1180px; margin: 0 auto; padding: 0 20px; }
+.container { max-width: var(--container-max); margin: 0 auto; padding: 0 20px; }
 
 .skip-link {
   position: absolute; left: -9999px; top: auto;
@@ -118,7 +119,7 @@ a:focus-visible, button:focus-visible, input:focus-visible {
   display: flex; align-items: center; justify-content: space-between;
   gap: 12px;
   padding: 14px 20px;
-  max-width: 1180px;
+  max-width: var(--container-max);
   margin: 0 auto;
 }
 .brand {
@@ -239,7 +240,7 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 }
 .hero__grid {
   position: relative;
-  max-width: 1180px; margin: 0 auto;
+  max-width: var(--container-max); margin: 0 auto;
   display: grid; gap: 36px;
 }
 .hero__copy { text-align: center; }
@@ -298,6 +299,8 @@ a:focus-visible, button:focus-visible, input:focus-visible {
   .hero__subtitle { margin: 0 0 32px; }
   .hero__ctas { flex-direction: row; align-items: flex-start; }
   .hero__ctas .btn-gold, .hero__ctas .btn-outline { width: auto; }
+  /* Trava o tamanho da foto pra ela não crescer demais (e dominar o texto) em telas largas */
+  .hero__figure { max-width: 480px; margin-left: auto; }
 }
 
 /* ── SEÇÃO GENÉRICA ─────────────────────────────────────── */
@@ -318,7 +321,7 @@ a:focus-visible, button:focus-visible, input:focus-visible {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 14px;
-  max-width: 1180px; margin: 0 auto;
+  max-width: var(--container-max); margin: 0 auto;
 }
 .destaque-card {
   position: relative;
@@ -353,13 +356,34 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 }
 
 /* ── CATÁLOGO ───────────────────────────────────────────── */
+.catalogo-chips-wrap {
+  position: relative;
+  max-width: var(--container-max); margin: 0 auto;
+}
 .catalogo-chips {
   display: flex; gap: 9px; overflow-x: auto;
   padding: 4px 20px 30px;
   -webkit-overflow-scrolling: touch;
-  max-width: 1180px; margin: 0 auto;
+  scroll-behavior: smooth;
 }
 .catalogo-chips::-webkit-scrollbar { display: none; }
+.chips-arrow {
+  position: absolute; top: 0; bottom: 30px; margin: auto 0;
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 1px solid var(--border); background: var(--offwhite);
+  color: var(--ink); font-size: 1.2rem; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0,0,0,.12);
+  z-index: 2;
+}
+.chips-arrow:hover { border-color: var(--gold); }
+.chips-arrow[hidden] { display: none; }
+.chips-arrow--left { left: 0; }
+.chips-arrow--right { right: 0; }
+@media (hover: none) and (pointer: coarse) {
+  .chips-arrow { display: none !important; }
+}
 .chip {
   flex-shrink: 0;
   padding: 9px 18px;
@@ -380,10 +404,12 @@ a:focus-visible, button:focus-visible, input:focus-visible {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px 14px;
-  max-width: 1180px; margin: 0 auto;
+  max-width: var(--container-max); margin: 0 auto;
   padding: 0 20px;
 }
 .loja-msg { grid-column: 1 / -1; text-align: center; color: var(--ink-mist); padding: 70px 20px; font-size: .875rem; }
+
+.catalogo-ver-mais { display: flex; justify-content: center; margin: 28px 20px 4px; }
 
 .produto-card {
   background: var(--card);
@@ -749,7 +775,7 @@ a:focus-visible, button:focus-visible, input:focus-visible {
   padding: 48px 20px 28px;
 }
 .footer__inner {
-  max-width: 1180px; margin: 0 auto;
+  max-width: var(--container-max); margin: 0 auto;
   display: flex; flex-direction: column; align-items: center; gap: 22px;
   text-align: center;
 }
@@ -773,6 +799,7 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 .footer__social svg { width: 18px; height: 18px; }
 .footer__divider { width: 100%; max-width: 300px; height: 1px; background: rgba(255,248,240,.15); }
 .footer__copy { font-size: .72rem; color: rgba(255,248,240,.55); }
+.footer__credito { font-size: .66rem; color: rgba(255,248,240,.35); margin-top: 2px; }
 
 /* ── WHATSAPP FLUTUANTE ─────────────────────────────────── */
 .fab-whatsapp {
@@ -780,26 +807,30 @@ a:focus-visible, button:focus-visible, input:focus-visible {
   bottom: calc(18px + env(safe-area-inset-bottom, 0));
   right: 18px;
   z-index: 400;
-  display: flex; align-items: center; gap: 9px;
+  display: flex; align-items: center; justify-content: center;
+  width: 56px; height: 56px;
   background: var(--wpp);
   color: #fff;
   border: none;
-  border-radius: 99px;
-  padding: 14px;
+  border-radius: 999px;
+  padding: 0;
   box-shadow: 0 10px 30px -8px rgba(0,0,0,.35);
   cursor: pointer;
   text-decoration: none;
-  transition: transform var(--dur), background var(--dur);
+  overflow: hidden;
+  transition: width var(--dur) var(--ease), background var(--dur), transform var(--dur);
 }
 .fab-whatsapp:hover { background: var(--wpp-deep); transform: translateY(-2px); }
 .fab-whatsapp svg { width: 24px; height: 24px; flex-shrink: 0; }
 .fab-whatsapp__texto {
   font-size: .8125rem; font-weight: 600;
   max-width: 0; overflow: hidden; white-space: nowrap;
-  transition: max-width .3s var(--ease);
+  transition: max-width .3s var(--ease), margin-left .3s var(--ease);
+  margin-left: 0;
 }
 @media (min-width: 700px) {
-  .fab-whatsapp:hover .fab-whatsapp__texto { max-width: 160px; }
+  .fab-whatsapp:hover { width: 210px; justify-content: flex-start; padding: 0 20px 0 16px; }
+  .fab-whatsapp:hover .fab-whatsapp__texto { max-width: 160px; margin-left: 9px; }
 }
 
 /* ── TOAST ──────────────────────────────────────────────── */
@@ -830,4 +861,16 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 }
 @media (max-width: 979px) {
   .header__desktop-actions { display: none; }
+}
+
+/* ── TELAS GRANDES (notebooks Full HD+) ─────────────────────
+   Em 1920px o container de 1180px deixava margens laterais
+   enormes; a partir de 1440px ele cresce e o catálogo ganha
+   uma 5ª coluna para ocupar melhor o espaço. ─────────────── */
+@media (min-width: 1440px) {
+  :root { --container-max: 1400px; }
+  .grid-produtos { grid-template-columns: repeat(5, 1fr); }
+}
+@media (min-width: 1800px) {
+  :root { --container-max: 1600px; }
 }

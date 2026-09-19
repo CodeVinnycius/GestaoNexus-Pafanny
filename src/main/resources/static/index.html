@@ -59,6 +59,8 @@
       <div><p class="section__label">Visão geral</p><h1 class="section__title">Dashboard</h1></div>
     </header>
 
+    <div id="alerta-estoque-baixo" class="alerta-estoque" style="display:none"></div>
+
     <div class="cards" id="cards-dashboard">
       <div class="card card--accent">
         <p class="card__label">Produtos cadastrados</p>
@@ -94,6 +96,11 @@
       </div>
     </div>
 
+    <div class="table-wrapper" style="margin-bottom:28px;">
+      <div class="table-header"><h2 class="table-title">Vendas — últimos 14 dias</h2></div>
+      <div class="grafico-vendas" id="grafico-vendas"></div>
+    </div>
+
     <div class="table-wrapper">
       <div class="table-header"><h2 class="table-title">Produtos — visão financeira</h2></div>
       <table class="table">
@@ -114,6 +121,10 @@
         <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         <input type="search" id="search" class="search" placeholder="Buscar por nome…" autocomplete="off"/>
       </div>
+      <button class="btn btn--ghost" id="btn-exportar-csv">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar CSV
+      </button>
     </div>
     <div class="table-wrapper">
       <table class="table">
@@ -190,6 +201,10 @@
         <option value="AJUSTE">Ajustes</option>
         <option value="DEVOLUCAO">Devoluções</option>
       </select>
+      <button class="btn btn--ghost" id="btn-exportar-historico-csv">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar CSV
+      </button>
     </div>
     <div class="table-wrapper">
       <table class="table">

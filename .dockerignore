@@ -1,0 +1,15 @@
+target/
+data/
+*.mv.db
+*.trace.db
+*.log
+.git/
+.idea/
+.vscode/
+*.iml
+.env
+.env.*
+!.env.example
+*.bat
+*.ps1
+docs/

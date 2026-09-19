@@ -45,7 +45,13 @@
         <p class="section__label">Painel administrativo</p>
         <h1 class="section__title">Empresas</h1>
       </div>
-      <button class="btn btn--primary" id="btn-nova-empresa">+ Nova empresa</button>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn--ghost" id="btn-backup">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Baixar backup
+        </button>
+        <button class="btn btn--primary" id="btn-nova-empresa">+ Nova empresa</button>
+      </div>
     </header>
 
     <div class="table-wrapper">
@@ -231,6 +237,32 @@
   }
 
   document.getElementById('btn-nova-empresa').onclick = () => abrirModal('novo');
+
+  document.getElementById('btn-backup').onclick = async function () {
+    const btn = this;
+    const textoOriginal = btn.innerHTML;
+    btn.disabled = true;
+    btn.textContent = 'Gerando…';
+    try {
+      const res = await fetch(API + '/backup', { headers: h() });
+      if (res.status === 403) { window.location.href = '/login.html'; return; }
+      if (!res.ok) { toast('Erro ao gerar o backup.', 'error'); return; }
+      const blob = await res.blob();
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href = url;
+      a.download = `estoque-backup-${new Date().toISOString().slice(0, 10)}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast('Erro de conexão ao gerar backup.', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = textoOriginal;
+    }
+  };
   document.getElementById('modal-close').onclick = fecharModal;
   document.getElementById('btn-cancelar').onclick = fecharModal;
   document.getElementById('modal-overlay').onclick = e => { if (e.target === document.getElementById('modal-overlay')) fecharModal(); };

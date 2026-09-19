@@ -135,6 +135,58 @@ Adicione a dependência do driver no `pom.xml` (veja comentário em
 
 ---
 
+## 🚂 Deploy no Railway
+
+O projeto já vem com `Dockerfile` e `railway.toml` prontos — o Railway detecta e builda
+automaticamente ao conectar o repositório.
+
+### 1. Crie o projeto
+No painel do Railway: **New Project → Deploy from GitHub repo** e selecione este repositório.
+
+### 2. Adicione um Volume (obrigatório)
+O banco (H2 em arquivo) e as fotos de produto ficam em disco. Sem um Volume, o Railway
+apaga esses dados a cada novo deploy. Em **Settings → Volumes**, crie um volume e monte em:
+```
+/data
+```
+
+### 3. Configure as variáveis de ambiente
+Em **Variables**, defina (gere valores novos — não reaproveite os do `.env.producao.bat` local):
+
+| Variável | Valor |
+|---|---|
+| `APP_JWT_SECRET` | `openssl rand -base64 32` (ou gere via `gerar-credenciais.ps1`) |
+| `APP_ADMIN_SENHA` | senha forte só de produção |
+| `DB_URL` | `jdbc:h2:file:/data/estoque;DB_CLOSE_ON_EXIT=FALSE` |
+| `APP_UPLOADS_DIR` | `/data/uploads` |
+| `APP_DATA_DIR` | `/data` (pasta do Volume; usada pela restauração de backup) |
+| `APP_LOJA_WHATSAPP` | número da loja (formato `55DDDNUMERO`) |
+| `APP_LOJA_INSTAGRAM` | usuário do Instagram (sem `@`) |
+
+Não defina `PORT` nem `SERVER_PORT` — o Railway injeta `PORT` sozinho e a aplicação já lê essa variável.
+
+### 4. Domínio
+Em **Settings → Networking**, gere o domínio público (`*.up.railway.app`) ou aponte um
+domínio próprio. Depois, atualize `src/main/resources/static/robots.txt` e `sitemap.xml`
+trocando `SEU-DOMINIO-AQUI.com` pelo domínio real, faça commit e deixe o Railway redeployar.
+
+### 5. Enviar o banco e as fotos do sistema local
+O servidor novo nasce vazio. Para levar produtos, preços, fotos e logins do sistema local, rode no PC
+onde o sistema está (com ele ligado):
+```powershell
+.\enviar-para-railway.ps1 -UrlRailway https://SEU-APP.up.railway.app
+```
+O script baixa um backup do banco local, junta com `data\uploads` e envia para `/api/admin/empresas/restaurar`
+(só admin). O envio fica pendente; **reinicie o serviço no Railway** para aplicar. O banco anterior do servidor
+é guardado como `estoque.mv.db.bak-AAAAMMDD-HHMMSS` no Volume. Depois da restauração, os logins e senhas
+passam a ser os do banco local.
+
+### Proteções da API pública
+O login (`/api/auth/login`) bloqueia por 15 minutos após 8 tentativas erradas do mesmo IP
+(ou 30 do mesmo login) e responde `429`. O IP real vem do proxy via `X-Forwarded-For`.
+
+---
+
 ## 📚 Endpoints principais da API
 
 | Método | Endpoint | Descrição |

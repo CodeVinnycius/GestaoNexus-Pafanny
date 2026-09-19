@@ -3,10 +3,13 @@ package com.estoque.service;
 import com.estoque.exception.ProdutoDuplicadoException;
 import com.estoque.exception.ProdutoNaoEncontradoException;
 import com.estoque.model.Empresa;
+import com.estoque.model.Movimentacao;
 import com.estoque.model.Produto;
 import com.estoque.model.Variacao;
+import com.estoque.repository.MovimentacaoRepository;
 import com.estoque.repository.ProdutoRepository;
 import com.estoque.repository.VariacaoRepository;
+import com.estoque.util.CsvUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,12 +23,15 @@ public class ProdutoService {
     private final ProdutoRepository repository;
     private final VariacaoRepository variacaoRepository;
     private final ArmazenamentoImagemService armazenamentoImagemService;
+    private final MovimentacaoRepository movimentacaoRepository;
 
     public ProdutoService(ProdutoRepository repository, VariacaoRepository variacaoRepository,
-                           ArmazenamentoImagemService armazenamentoImagemService) {
+                           ArmazenamentoImagemService armazenamentoImagemService,
+                           MovimentacaoRepository movimentacaoRepository) {
         this.repository = repository;
         this.variacaoRepository = variacaoRepository;
         this.armazenamentoImagemService = armazenamentoImagemService;
+        this.movimentacaoRepository = movimentacaoRepository;
     }
 
     public Produto cadastrar(Produto produto, Empresa empresa) {
@@ -87,6 +93,13 @@ public class ProdutoService {
     public void remover(Long id, Empresa empresa) {
         Produto p = buscarPorId(id, empresa);
         p.getImagens().forEach(armazenamentoImagemService::remover);
+
+        // Solta a referência das movimentações em vez de apagá-las — o histórico é
+        // mantido (nomeProduto já é um snapshot), só o produto_id vira nulo.
+        List<Movimentacao> movs = movimentacaoRepository.findByProduto(p);
+        movs.forEach(m -> m.setProduto(null));
+        movimentacaoRepository.saveAll(movs);
+
         repository.delete(p);
     }
 
@@ -161,6 +174,33 @@ public class ProdutoService {
         Produto p = buscarPorId(produtoId, empresa);
         p.getImagens().remove(url);
         return repository.save(p);
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    //  EXPORTAÇÃO CSV
+    // ══════════════════════════════════════════════════════════════════════════
+
+    @Transactional(readOnly = true)
+    public String exportarCsv(Empresa empresa) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Nome;Categoria;Estampa;Codigo;Quantidade;Custo Unitario;Preco Venda;Margem (%);Custo Total;Valor Total;Lucro Potencial;Disponibilidade;Visivel na Loja\r\n");
+        for (Produto p : listarTodos(empresa)) {
+            sb.append(CsvUtil.campo(p.getNome())).append(';')
+              .append(CsvUtil.campo(p.getCategoria())).append(';')
+              .append(CsvUtil.campo(p.getEstampa())).append(';')
+              .append(CsvUtil.campo(p.getCodigo())).append(';')
+              .append(p.getQuantidade()).append(';')
+              .append(CsvUtil.numero(p.getPrecoCusto())).append(';')
+              .append(p.getPrecoVenda() != null ? CsvUtil.numero(p.getPrecoVenda()) : "").append(';')
+              .append(CsvUtil.numero(p.getMargemLucro())).append(';')
+              .append(CsvUtil.numero(p.getCustoTotal())).append(';')
+              .append(CsvUtil.numero(p.getValorTotal())).append(';')
+              .append(CsvUtil.numero(p.getLucroPotencial())).append(';')
+              .append(p.getDisponibilidade()).append(';')
+              .append(p.isVisivelLoja() ? "Sim" : "Nao")
+              .append("\r\n");
+        }
+        return sb.toString();
     }
 
     @Transactional(readOnly = true)

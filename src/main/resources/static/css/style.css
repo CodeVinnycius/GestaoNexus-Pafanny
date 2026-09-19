@@ -197,6 +197,58 @@ body {
 }
 .section__title { font-size: 1.625rem; font-weight: 600; line-height: 1.15; }
 
+/* ── ALERTA DE ESTOQUE BAIXO ────────────────────────────── */
+.alerta-estoque {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #1a1a0a;
+  border: 1px solid var(--warn-dim);
+  color: var(--warn);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  font-size: .875rem;
+}
+.alerta-estoque svg { width: 18px; height: 18px; flex-shrink: 0; }
+.alerta-estoque strong { color: var(--text-1); }
+
+/* ── GRÁFICO DE VENDAS ──────────────────────────────────── */
+.grafico-vendas {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 170px;
+  padding: 20px 18px 14px;
+}
+.grafico-vendas__col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  height: 100%;
+}
+.grafico-vendas__barra {
+  width: 100%;
+  max-width: 28px;
+  background: var(--accent-dim);
+  border-radius: 3px 3px 0 0;
+  min-height: 2px;
+  transition: background var(--dur);
+}
+.grafico-vendas__col:hover .grafico-vendas__barra { background: var(--accent); }
+.grafico-vendas__valor { font-size: .625rem; color: var(--text-2); font-family: var(--font-mono); white-space: nowrap; }
+.grafico-vendas__label { font-size: .625rem; color: var(--text-3); white-space: nowrap; }
+.grafico-vendas__vazio { color: var(--text-3); font-size: .8125rem; font-style: italic; padding: 30px 0; text-align: center; width: 100%; }
+
+@media (max-width: 767px) {
+  .grafico-vendas { height: 140px; padding: 16px 10px 10px; }
+  .grafico-vendas__label { display: none; } /* 14 rótulos não cabem — mantém só o hover/tooltip */
+}
+
 /* ── CARDS ──────────────────────────────────────────────── */
 .cards {
   display: grid;
@@ -205,7 +257,8 @@ body {
   margin-bottom: 28px;
 }
 #cards-dashboard {
-  grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+  /* 8 cards fixos: 4 colunas mantém sempre 2 linhas cheias, sem card órfão sobrando sozinho */
+  grid-template-columns: repeat(4, 1fr);
 }
 
 .card {
@@ -719,7 +772,7 @@ select.field__input:focus { border-color: var(--accent); }
 @media (max-width: 359px) {
   :root { font-size: 14px; }
   .main { padding: 64px 12px 72px; }
-  .cards { grid-template-columns: 1fr; }
+  .cards, #cards-dashboard { grid-template-columns: 1fr; }
 }
 
 /* ── LOJA: campos extras no modal de produto ───────────────── */

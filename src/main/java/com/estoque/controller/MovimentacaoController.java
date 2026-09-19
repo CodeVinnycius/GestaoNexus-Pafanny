@@ -2,6 +2,8 @@ package com.estoque.controller;
 
 import com.estoque.model.*;
 import com.estoque.service.MovimentacaoService;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -66,5 +68,15 @@ public class MovimentacaoController {
     @GetMapping("/receita")
     public ResponseEntity<Map<String, Double>> receita(@AuthenticationPrincipal Empresa empresa) {
         return ResponseEntity.ok(Map.of("receita", service.receitaTotalVendas(empresa)));
+    }
+
+    @GetMapping("/exportar/csv")
+    public ResponseEntity<byte[]> exportarCsv(@AuthenticationPrincipal Empresa empresa) {
+        byte[] corpo = com.estoque.util.CsvUtil.paraBytesComBom(service.exportarCsv(empresa));
+        String nomeArquivo = "estoque-historico-" + java.time.LocalDate.now() + ".csv";
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + nomeArquivo + "\"")
+            .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
+            .body(corpo);
     }
 }

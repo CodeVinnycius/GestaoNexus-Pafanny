@@ -44,7 +44,8 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/", "/login.html",
                     "/css/**", "/js/**", "/icons/**",
-                    "/manifest.json", "/sw.js"
+                    "/manifest.json", "/sw.js",
+                    "/robots.txt", "/sitemap.xml"
                 ).permitAll()
 
                 // Loja pública — catálogo, fotos de produto e a própria página

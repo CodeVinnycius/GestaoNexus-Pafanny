@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /loja.html
+Allow: /css/
+Allow: /js/
+Allow: /icons/
+Allow: /uploads/
+Disallow: /api/
+Disallow: /index.html
+Disallow: /admin.html
+Disallow: /login.html
+
+Sitemap: https://SEU-DOMINIO-AQUI.com/sitemap.xml

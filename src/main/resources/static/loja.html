@@ -105,9 +105,16 @@
       <h2 class="section__title" id="catalogo-title">Os pijamas PAFANNY</h2>
       <p class="section__desc">Toque nas peças para ver detalhes e chamar a gente no WhatsApp.</p>
     </div>
-    <nav class="catalogo-chips" id="categorias" aria-label="Filtrar por categoria"></nav>
+    <div class="catalogo-chips-wrap">
+      <button type="button" class="chips-arrow chips-arrow--left" id="chipsArrowLeft" aria-label="Ver categorias anteriores" hidden>&#8249;</button>
+      <nav class="catalogo-chips" id="categorias" aria-label="Filtrar por categoria"></nav>
+      <button type="button" class="chips-arrow chips-arrow--right" id="chipsArrowRight" aria-label="Ver mais categorias" hidden>&#8250;</button>
+    </div>
     <div class="grid-produtos" id="grid-produtos">
       <p class="loja-msg">Carregando peças…</p>
+    </div>
+    <div class="catalogo-ver-mais" id="catalogoVerMaisWrap" hidden>
+      <button type="button" class="btn-outline" id="btnVerMais">Ver mais pijamas</button>
     </div>
   </section>
 
@@ -241,6 +248,7 @@
     </div>
     <div class="footer__divider"></div>
     <p class="footer__copy">© 2026 PAFANNY — Todos os direitos reservados.</p>
+    <p class="footer__credito">by VinnyciusDev</p>
   </div>
 </footer>
 

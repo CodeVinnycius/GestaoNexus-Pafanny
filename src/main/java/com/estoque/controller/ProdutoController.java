@@ -48,6 +48,16 @@ public class ProdutoController {
         return ResponseEntity.ok(resumo);
     }
 
+    @GetMapping("/exportar/csv")
+    public ResponseEntity<byte[]> exportarCsv(@AuthenticationPrincipal Empresa empresa) {
+        byte[] corpo = com.estoque.util.CsvUtil.paraBytesComBom(service.exportarCsv(empresa));
+        String nomeArquivo = "estoque-produtos-" + java.time.LocalDate.now() + ".csv";
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + nomeArquivo + "\"")
+            .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
+            .body(corpo);
+    }
+
     @PostMapping
     public ResponseEntity<Produto> cadastrar(@Valid @RequestBody Produto produto,
                                               @AuthenticationPrincipal Empresa empresa) {

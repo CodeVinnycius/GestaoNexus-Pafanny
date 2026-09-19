@@ -39,7 +39,7 @@ let idParaRemover = null;
 //  CARREGAMENTO
 // ══════════════════════════════════════════════════════════════════════════════
 async function carregarTudo() {
-  await Promise.all([carregarProdutos(), carregarResumo(), carregarReceita()]);
+  await Promise.all([carregarProdutos(), carregarResumo(), carregarReceita(), carregarGraficoVendas()]);
 }
 
 async function carregarProdutos() {
@@ -78,6 +78,49 @@ async function carregarReceita() {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
+//  GRÁFICO DE VENDAS (últimos 14 dias)
+// ══════════════════════════════════════════════════════════════════════════════
+async function carregarGraficoVendas() {
+  try {
+    const res = await api(`${API}/movimentacoes?tipo=VENDA`);
+    if (!res) return;
+    renderGraficoVendas(await res.json());
+  } catch { /* silencioso */ }
+}
+
+function renderGraficoVendas(vendas) {
+  const dias = [];
+  const hoje = new Date();
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(hoje);
+    d.setDate(d.getDate() - i);
+    dias.push({
+      chave: d.toISOString().slice(0, 10),
+      label: `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`,
+      total: 0
+    });
+  }
+  const porDia = new Map(dias.map(d => [d.chave, d]));
+  vendas.forEach(m => {
+    const dia = porDia.get((m.dataHora || '').slice(0, 10));
+    if (dia) dia.total += Math.abs(m.quantidade) * m.precoUnitario;
+  });
+
+  const el = $('grafico-vendas');
+  if (!dias.some(d => d.total > 0)) {
+    el.innerHTML = '<p class="grafico-vendas__vazio">Ainda não há vendas registradas nos últimos 14 dias.</p>';
+    return;
+  }
+  const max = Math.max(...dias.map(d => d.total));
+  el.innerHTML = dias.map(d => `
+    <div class="grafico-vendas__col" title="${d.label}: ${moeda(d.total)}">
+      <span class="grafico-vendas__valor">${d.total > 0 ? moeda(d.total).replace('R$', '').trim() : ''}</span>
+      <div class="grafico-vendas__barra" style="height:${d.total > 0 ? Math.max((d.total / max) * 100, 4) : 0}%"></div>
+      <span class="grafico-vendas__label">${d.label}</span>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 //  DASHBOARD
 // ══════════════════════════════════════════════════════════════════════════════
 function renderDashboard() {
@@ -89,6 +132,8 @@ function renderDashboard() {
   $('stat-total').textContent    = qtd;
   $('stat-unidades').textContent = unidades;
   $('stat-top').textContent      = top ? top.nome : '—';
+
+  renderAlertaEstoqueBaixo();
 
   const top6 = [...produtos].sort((a, b) => (b.lucroPotencial ?? 0) - (a.lucroPotencial ?? 0)).slice(0, 6);
 
@@ -106,6 +151,21 @@ function renderDashboard() {
         </tr>`;
       }).join('')
     : '<tr><td colspan="6" class="table__empty">Nenhum produto cadastrado.</td></tr>';
+}
+
+const LIMITE_ESTOQUE_BAIXO = 5;
+
+function renderAlertaEstoqueBaixo() {
+  const el = $('alerta-estoque-baixo');
+  const baixos = produtos.filter(p => p.quantidade <= LIMITE_ESTOQUE_BAIXO);
+  if (!baixos.length) { el.style.display = 'none'; return; }
+
+  const nomes = baixos.slice(0, 3).map(p => p.nome).join(', ');
+  const resto = baixos.length > 3 ? ` e mais ${baixos.length - 3}` : '';
+  el.innerHTML = `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <span><strong>${baixos.length} produto${baixos.length > 1 ? 's' : ''}</strong> com estoque baixo (≤ ${LIMITE_ESTOQUE_BAIXO} un.): ${esc(nomes)}${resto}.</span>`;
+  el.style.display = 'flex';
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -150,6 +210,32 @@ $('search').addEventListener('input', function () {
       renderProdutos(produtos.filter(p => p.nome.toLowerCase().includes(this.value.toLowerCase())));
     }
   }, 300);
+});
+
+// Exportar CSV
+$('btn-exportar-csv').addEventListener('click', async function () {
+  const btn = this;
+  const textoOriginal = btn.innerHTML;
+  btn.disabled = true;
+  btn.textContent = 'Gerando…';
+  try {
+    const res = await api(`${API}/produtos/exportar/csv`);
+    if (!res || !res.ok) { toast('Erro ao gerar o CSV.', 'error'); return; }
+    const blob = await res.blob();
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
+    a.download = `estoque-produtos-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  } catch {
+    toast('Erro de conexão ao exportar.', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = textoOriginal;
+  }
 });
 
 // ── Modal produto ─────────────────────────────────────────────────────────────
@@ -526,6 +612,32 @@ function renderHistorico(lista) {
 }
 
 $('filtro-tipo').addEventListener('change', carregarHistorico);
+
+// Exportar CSV (histórico completo, independente do filtro de tipo)
+$('btn-exportar-historico-csv').addEventListener('click', async function () {
+  const btn = this;
+  const textoOriginal = btn.innerHTML;
+  btn.disabled = true;
+  btn.textContent = 'Gerando…';
+  try {
+    const res = await api(`${API}/movimentacoes/exportar/csv`);
+    if (!res || !res.ok) { toast('Erro ao gerar o CSV.', 'error'); return; }
+    const blob = await res.blob();
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
+    a.download = `estoque-historico-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  } catch {
+    toast('Erro de conexão ao exportar.', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = textoOriginal;
+  }
+});
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  NAVEGAÇÃO

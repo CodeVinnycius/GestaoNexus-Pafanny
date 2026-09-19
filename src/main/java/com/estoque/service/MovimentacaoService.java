@@ -3,11 +3,13 @@ package com.estoque.service;
 import com.estoque.model.*;
 import com.estoque.repository.MovimentacaoRepository;
 import com.estoque.repository.ProdutoRepository;
+import com.estoque.util.CsvUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -82,5 +84,34 @@ public class MovimentacaoService {
     @Transactional(readOnly = true)
     public double receitaTotalVendas(Empresa empresa) {
         return movRepo.somarReceitaVendas(empresa);
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    //  EXPORTAÇÃO CSV
+    // ══════════════════════════════════════════════════════════════════════════
+
+    private static final Map<TipoMovimentacao, String> ROTULO_TIPO = Map.of(
+        TipoMovimentacao.VENDA,      "Venda",
+        TipoMovimentacao.ENTRADA,    "Entrada",
+        TipoMovimentacao.AJUSTE,     "Ajuste",
+        TipoMovimentacao.DEVOLUCAO,  "Devolução"
+    );
+
+    @Transactional(readOnly = true)
+    public String exportarCsv(Empresa empresa) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Data;Tipo;Produto;Quantidade;Valor Unitario;Valor Total;Responsavel;Motivo\r\n");
+        for (Movimentacao m : listar(empresa)) {
+            sb.append(m.getDataFormatada()).append(';')
+              .append(ROTULO_TIPO.getOrDefault(m.getTipo(), String.valueOf(m.getTipo()))).append(';')
+              .append(CsvUtil.campo(m.getNomeProduto())).append(';')
+              .append(m.getQuantidade()).append(';')
+              .append(CsvUtil.numero(m.getPrecoUnitario())).append(';')
+              .append(CsvUtil.numero(m.getValorTotal())).append(';')
+              .append(CsvUtil.campo(m.getResponsavel())).append(';')
+              .append(CsvUtil.campo(m.getMotivo()))
+              .append("\r\n");
+        }
+        return sb.toString();
     }
 }

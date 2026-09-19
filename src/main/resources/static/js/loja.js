@@ -9,10 +9,16 @@ const FAV_KEY = 'pafanny_favoritos';
 
 // Ordem oficial das linhas PAFANNY (categorias sem produto real não aparecem — filtro é dinâmico).
 const ORDEM_CATEGORIAS = [
-  'Alcinha Viés', 'Alcinha Babado', 'Alcinha Botão',
-  'Camiseta Botão',
-  'Americano Curto', 'Americano Manga Longa', 'Americano Inverno'
+  'Alcinha Babado', 'Alcinha Botão', 'Alcinha Vies Botao', 'Alcinha Tapeta',
+  'Camiseta Botão', 'Camisola',
+  'Baby Doll Manga', 'Baby Doll Infantil',
+  'Longo Americano', 'Longo Americano de Inverno',
+  'Pijama Longo Botao', 'Americano Curto'
 ];
+
+// Quantas linhas aparecem em destaque logo abaixo do "Escolha seu momento" —
+// o catálogo completo (todas as categorias) continua acessível pelos chips do catálogo.
+const LIMITE_DESTAQUE = 8;
 
 const ROTULO_DISPONIBILIDADE = {
   DISPONIVEL: { texto: 'Disponível', classe: 'disponivel' },
@@ -25,10 +31,14 @@ const ROTULO_DISPONIBILIDADE = {
 const PLACEHOLDER_IMG =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23F4E9D8'/%3E%3Cpath d='M100 145s-38-22-38-52c0-15 12-27 27-27 6 0 12 3 11 8 5-5 11-8 17-8 15 0 27 12 27 27 0 30-44 52-44 52z' fill='none' stroke='%23D4AF37' stroke-width='2'/%3E%3C/svg%3E";
 
+// Quantas peças aparecem de cara no catálogo antes do botão "Ver mais".
+const LIMITE_GRID_INICIAL = 10;
+
 let produtos = [];
 let config   = { nome: 'PAFANNY', whatsapp: '', instagram: '' };
 let categoriaAtiva = null;
 let mostrarSoFavoritos = false;
+let limiteGridAtual = LIMITE_GRID_INICIAL;
 let produtoAtual = null;
 let variacaoSelecionada = null;
 let imagemAtivaIdx = 0;
@@ -143,7 +153,7 @@ function renderHero() {
 function renderDestaque() {
   const categorias = ordenarPorCategoria(
     [...new Set(produtos.map(p => p.categoria).filter(Boolean))].map(c => ({ categoria: c }))
-  ).map(c => c.categoria);
+  ).map(c => c.categoria).slice(0, LIMITE_DESTAQUE);
   $('destaque-grid').innerHTML = categorias.map(cat => {
     const item = produtos.find(p => p.categoria === cat && p.imagens && p.imagens.length) || produtos.find(p => p.categoria === cat);
     if (!item) return '';
@@ -161,6 +171,7 @@ function renderDestaque() {
     card.onclick = () => {
       categoriaAtiva = card.dataset.cat;
       mostrarSoFavoritos = false;
+      limiteGridAtual = LIMITE_GRID_INICIAL;
       renderCategorias();
       renderGrid();
       document.getElementById('catalogo').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -175,7 +186,12 @@ function renderCategorias() {
   const categorias = ordenarPorCategoria(
     [...new Set(produtos.map(p => p.categoria).filter(Boolean))].map(c => ({ categoria: c }))
   ).map(c => c.categoria);
-  if (categorias.length < 2) { $('categorias').style.display = 'none'; return; }
+  if (categorias.length < 2) {
+    $('categorias').style.display = 'none';
+    $('chipsArrowLeft').hidden = true;
+    $('chipsArrowRight').hidden = true;
+    return;
+  }
   $('categorias').style.display = 'flex';
 
   const temFavoritos = getFavoritos().length > 0;
@@ -188,6 +204,7 @@ function renderCategorias() {
     chip.onclick = () => {
       categoriaAtiva = chip.dataset.cat === 'Todos' ? null : chip.dataset.cat;
       mostrarSoFavoritos = false;
+      limiteGridAtual = LIMITE_GRID_INICIAL;
       renderCategorias();
       renderGrid();
     };
@@ -195,9 +212,35 @@ function renderCategorias() {
   const chipFav = $('chip-favoritos');
   if (chipFav) chipFav.onclick = () => {
     mostrarSoFavoritos = !mostrarSoFavoritos;
+    limiteGridAtual = LIMITE_GRID_INICIAL;
     renderCategorias();
     renderGrid();
   };
+
+  configurarSetasCategorias();
+}
+
+let setasCategoriasConfiguradas = false;
+function configurarSetasCategorias() {
+  const trilho = $('categorias');
+  const setaEsq = $('chipsArrowLeft');
+  const setaDir = $('chipsArrowRight');
+
+  const atualizarSetas = () => {
+    const folga = 4; // tolerância para arredondamento de subpixel
+    setaEsq.hidden = trilho.scrollLeft <= folga;
+    setaDir.hidden = trilho.scrollLeft + trilho.clientWidth >= trilho.scrollWidth - folga;
+  };
+
+  if (!setasCategoriasConfiguradas) {
+    setasCategoriasConfiguradas = true;
+    setaEsq.onclick = () => trilho.scrollBy({ left: -220, behavior: 'smooth' });
+    setaDir.onclick = () => trilho.scrollBy({ left: 220, behavior: 'smooth' });
+    trilho.addEventListener('scroll', atualizarSetas);
+    window.addEventListener('resize', atualizarSetas);
+  }
+  // O conteúdo acabou de ser reconstruído — recalcula após o layout assentar.
+  requestAnimationFrame(atualizarSetas);
 }
 
 function renderGrid() {
@@ -209,8 +252,12 @@ function renderGrid() {
     $('grid-produtos').innerHTML = mostrarSoFavoritos
       ? '<p class="loja-msg">Você ainda não favoritou nenhum pijama. Toque no ♡ nas peças que gostar.</p>'
       : '<p class="loja-msg">Nenhuma peça disponível nessa categoria no momento.</p>';
+    $('catalogoVerMaisWrap').hidden = true;
     return;
   }
+
+  const totalLista = lista.length;
+  lista = lista.slice(0, limiteGridAtual);
 
   $('grid-produtos').innerHTML = lista.map(p => {
     const badge = ROTULO_DISPONIBILIDADE[p.disponibilidade];
@@ -261,6 +308,13 @@ function renderGrid() {
       renderCategorias();
     });
   });
+
+  const verMaisWrap = $('catalogoVerMaisWrap');
+  verMaisWrap.hidden = totalLista <= limiteGridAtual;
+  $('btnVerMais').onclick = () => {
+    limiteGridAtual += LIMITE_GRID_INICIAL;
+    renderGrid();
+  };
 }
 
 // ══════════════════════════════════════════════════════════════════════════
@@ -462,6 +516,14 @@ function renderFaq() {
 // ══════════════════════════════════════════════════════════════════════════
 //  DADOS ESTRUTURADOS (SEO) — sem afirmar disponibilidade que não temos
 // ══════════════════════════════════════════════════════════════════════════
+// Mapa pro vocabulário schema.org — CONSULTAR fica de fora (não afirmamos disponibilidade que não temos).
+const DISPONIBILIDADE_SCHEMA = {
+  DISPONIVEL:        'https://schema.org/InStock',
+  ULTIMAS_UNIDADES:  'https://schema.org/LimitedAvailability',
+  INDISPONIVEL:      'https://schema.org/OutOfStock',
+  ESGOTADO:          'https://schema.org/OutOfStock'
+};
+
 function injetarDadosEstruturados() {
   const itens = produtos.filter(p => p.imagens && p.imagens.length).map((p, i) => {
     const produto = {
@@ -474,6 +536,8 @@ function injetarDadosEstruturados() {
     };
     if (p.preco != null) {
       produto.offers = { '@type': 'Offer', priceCurrency: 'BRL', price: p.preco.toFixed(2) };
+      const disponibilidade = DISPONIBILIDADE_SCHEMA[p.disponibilidade];
+      if (disponibilidade) produto.offers.availability = disponibilidade;
     }
     return { '@type': 'ListItem', position: i + 1, item: produto };
   });

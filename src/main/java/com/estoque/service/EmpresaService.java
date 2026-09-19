@@ -2,6 +2,7 @@ package com.estoque.service;
 
 import com.estoque.model.Empresa;
 import com.estoque.repository.EmpresaRepository;
+import com.estoque.repository.MovimentacaoRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,10 +18,13 @@ public class EmpresaService {
 
     private final EmpresaRepository repository;
     private final PasswordEncoder encoder;
+    private final MovimentacaoRepository movimentacaoRepository;
 
-    public EmpresaService(EmpresaRepository repository, PasswordEncoder encoder) {
+    public EmpresaService(EmpresaRepository repository, PasswordEncoder encoder,
+                           MovimentacaoRepository movimentacaoRepository) {
         this.repository = repository;
         this.encoder    = encoder;
+        this.movimentacaoRepository = movimentacaoRepository;
     }
 
     @Transactional(readOnly = true)
@@ -81,6 +85,9 @@ public class EmpresaService {
         if (e.isAdmin())
             throw new IllegalArgumentException("Não é possível remover a conta de administrador.");
 
+        // A empresa inteira está sumindo — aqui sim o histórico vai junto (diferente
+        // da remoção de um produto isolado, que mantém as movimentações).
+        movimentacaoRepository.deleteByEmpresa(e);
         repository.delete(e);
     }
 

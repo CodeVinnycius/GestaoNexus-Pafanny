@@ -9,4 +9,4 @@ Disallow: /index.html
 Disallow: /admin.html
 Disallow: /login.html
 
-Sitemap: https://SEU-DOMINIO-AQUI.com/sitemap.xml
+Sitemap: https://gestaonexus-production-cc1f.up.railway.app/sitemap.xml

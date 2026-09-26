@@ -9,4 +9,4 @@ Disallow: /index.html
 Disallow: /admin.html
 Disallow: /login.html
 
-Sitemap: https://gestaonexus-production-cc1f.up.railway.app/sitemap.xml
+Sitemap: https://lojapafanny.up.railway.app/sitemap.xml

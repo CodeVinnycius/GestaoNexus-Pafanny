@@ -9,4 +9,4 @@ Disallow: /index.html
 Disallow: /admin.html
 Disallow: /login.html
 
-Sitemap: https://lojapafanny.up.railway.app/sitemap.xml
+Sitemap: https://pafanny.com.br/sitemap.xml

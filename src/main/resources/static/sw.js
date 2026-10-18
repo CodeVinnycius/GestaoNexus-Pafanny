@@ -3,12 +3,11 @@
  * Estratégia: Network First para API, Cache First para assets estáticos
  */
 
-const CACHE_NAME    = 'estoque-v4';
-const CACHE_STATIC  = 'estoque-static-v4';
+const CACHE_NAME    = 'estoque-v6';
+const CACHE_STATIC  = 'estoque-static-v6';
 
 // Assets que ficam em cache para funcionar offline
 const ASSETS_STATIC = [
-  '/',
   '/index.html',
   '/login.html',
   '/admin.html',

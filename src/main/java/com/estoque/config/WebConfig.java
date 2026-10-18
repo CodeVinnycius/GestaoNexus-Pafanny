@@ -3,6 +3,7 @@ package com.estoque.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.io.IOException;
@@ -15,6 +16,12 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Value("${app.uploads.dir:./data/uploads}")
     private String uploadsDir;
+
+    /** A raiz do domínio abre a loja pública; o sistema continua em /login.html e /index.html. */
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        registry.addViewController("/").setViewName("forward:/loja.html");
+    }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {

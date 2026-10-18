@@ -16,15 +16,21 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Jost:wght@400;500;600&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/css/loja.css"/>
+<!-- Animações de entrada só quando o JS roda: sem JS, nada fica invisível -->
+<script>document.documentElement.classList.add('js');</script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23D4AF37' d='M12 21s-7.5-4.6-10-9.3C.4 8.2 2 4.8 5.4 4.1c2-.4 4 .5 6.6 3 2.6-2.5 4.6-3.4 6.6-3C21.9 4.8 23.5 8.2 22 11.7 19.5 16.4 12 21 12 21z'/%3E%3C/svg%3E"/>
 </head>
 <body>
 
 <a href="#catalogo" class="skip-link">Pular para o catálogo</a>
 
-<header class="header">
+<noscript>
+  <p class="aviso-sem-js">Para ver o catálogo de pijamas, ative o JavaScript do seu navegador — ou fale com a gente direto pelo Instagram <strong>@usepafanny</strong>.</p>
+</noscript>
+
+<header class="header" id="site-header">
   <div class="header__bar">
     <a href="#topo" class="brand" aria-label="PAFANNY — início">
       <svg class="brand__mark" viewBox="0 0 48 48" fill="none" aria-hidden="true">
@@ -49,13 +55,13 @@
       </a>
     </div>
 
-    <button class="hamburger" id="btn-hamburger" aria-label="Abrir menu" aria-expanded="false">
+    <button type="button" class="hamburger" id="btn-hamburger" aria-label="Abrir menu" aria-expanded="false" aria-controls="mobile-nav">
       <span></span><span></span><span></span>
     </button>
   </div>
 
   <nav class="mobile-nav" id="mobile-nav" aria-label="Navegação mobile">
-    <a class="mobile-nav__link" href="#catalogo">Início</a>
+    <a class="mobile-nav__link" href="#topo">Início</a>
     <a class="mobile-nav__link" href="#catalogo">Pijamas</a>
     <a class="mobile-nav__link" href="#sobre">Sobre a PAFANNY</a>
     <a class="mobile-nav__link" href="#tamanhos">Guia de Tamanhos</a>
@@ -82,7 +88,7 @@
         </div>
       </div>
       <div class="hero__figure reveal" id="hero-figure">
-        <img id="hero-img" src="" alt="" loading="eager"/>
+        <img id="hero-img" alt="" loading="eager" fetchpriority="high"/>
         <span class="hero__badge">Feito com carinho, para você</span>
       </div>
     </div>
@@ -95,7 +101,7 @@
       <h2 class="section__title" id="destaque-title">Escolha seu momento PAFANNY</h2>
       <p class="section__desc">Cada linha pensada para um jeito diferente de descansar — todas com o mesmo carinho em cada detalhe.</p>
     </div>
-    <div class="destaque-grid reveal" id="destaque-grid"></div>
+    <div class="destaque-grid reveal" id="destaque-grid" role="list"></div>
   </section>
 
   <!-- ══ CATÁLOGO ═══════════════════════════════════════ -->
@@ -110,6 +116,7 @@
       <nav class="catalogo-chips" id="categorias" aria-label="Filtrar por categoria"></nav>
       <button type="button" class="chips-arrow chips-arrow--right" id="chipsArrowRight" aria-label="Ver mais categorias" hidden>&#8250;</button>
     </div>
+    <p class="sr-only" id="catalogo-status" role="status" aria-live="polite"></p>
     <div class="grid-produtos" id="grid-produtos">
       <p class="loja-msg">Carregando peças…</p>
     </div>
@@ -223,7 +230,7 @@
 </main>
 
 <!-- ══ FOOTER ═══════════════════════════════════════════ -->
-<footer class="footer">
+<footer class="footer" id="site-footer">
   <div class="footer__inner">
     <a href="#topo" class="brand" aria-label="PAFANNY — início">
       <svg class="brand__mark" viewBox="0 0 48 48" fill="none" aria-hidden="true">
@@ -254,8 +261,8 @@
 
 <!-- Modal: detalhe do produto -->
 <div class="loja-overlay" id="overlay-produto">
-  <div class="loja-sheet" role="dialog" aria-modal="true" aria-labelledby="detalhe-nome">
-    <button class="loja-sheet__fechar" id="fechar-produto" aria-label="Fechar">✕</button>
+  <div class="loja-sheet" id="sheet-produto" role="dialog" aria-modal="true" aria-labelledby="detalhe-nome" tabindex="-1">
+    <button type="button" class="loja-sheet__fechar" id="fechar-produto" aria-label="Fechar detalhes do pijama">✕</button>
     <div id="conteudo-produto"></div>
   </div>
 </div>

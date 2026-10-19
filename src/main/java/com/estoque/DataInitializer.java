@@ -19,6 +19,9 @@ public class DataInitializer implements CommandLineRunner {
 
     @Value("${app.admin.login}") private String adminLogin;
     @Value("${app.admin.senha}") private String adminSenha;
+    // Recuperação de acesso: com true, a senha do admin existente volta a ser app.admin.senha
+    // a cada inicialização. Ligar só para recuperar o acesso e desligar logo depois.
+    @Value("${app.admin.redefinir-senha:false}") private boolean redefinirSenha;
 
     public DataInitializer(EmpresaRepository repository, PasswordEncoder encoder) {
         this.repository = repository;
@@ -33,6 +36,13 @@ public class DataInitializer implements CommandLineRunner {
             repository.save(admin);
             // SEGURANÇA: nunca loga a senha em produção
             log.info("Admin criado com login: {}", adminLogin);
+        } else if (redefinirSenha) {
+            Empresa admin = repository.findByLogin(adminLogin).orElseThrow();
+            admin.setSenha(encoder.encode(adminSenha));
+            admin.setAdmin(true);
+            admin.setAtivo(true);
+            repository.save(admin);
+            log.warn("Senha do admin '{}' redefinida por APP_ADMIN_REDEFINIR_SENHA. Desligue essa variável.", adminLogin);
         }
     }
 }

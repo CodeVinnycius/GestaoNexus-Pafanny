@@ -158,15 +158,18 @@ function alternarFavorito(id) {
 //  HERO + DESTAQUE
 // ══════════════════════════════════════════════════════════════════════════
 function renderHero() {
-  const comFoto = produtos.find(p => p.imagens && p.imagens.length);
-  if (comFoto) {
-    // Fallback registrado antes do src, senão um erro rápido escapa do listener.
-    aplicarFallbackImagem($('hero-img'));
-    $('hero-img').src = comFoto.imagens[0];
-    $('hero-img').alt = `Pijama ${comFoto.nome} PAFANNY`; // propriedade DOM: sem escape HTML
-  } else {
-    $('hero-figure').style.display = 'none';
-  }
+  // A foto principal é fixa no HTML (/img/foto-principal.jpg). Só se ela não carregar
+  // é que entra a foto do primeiro produto — e, sem nenhuma, o quadro some.
+  const img = $('hero-img');
+  const usarFotoDeProduto = () => {
+    const comFoto = produtos.find(p => p.imagens && p.imagens.length);
+    if (!comFoto) { $('hero-figure').style.display = 'none'; return; }
+    aplicarFallbackImagem(img);
+    img.src = comFoto.imagens[0];
+    img.alt = `Pijama ${comFoto.nome} PAFANNY`; // propriedade DOM: sem escape HTML
+  };
+  if (img.complete && img.naturalWidth === 0) usarFotoDeProduto();
+  else img.addEventListener('error', usarFotoDeProduto, { once: true });
 }
 
 function renderDestaque() {

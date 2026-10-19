@@ -3,6 +3,7 @@ Allow: /loja.html
 Allow: /css/
 Allow: /js/
 Allow: /icons/
+Allow: /img/
 Allow: /uploads/
 Disallow: /api/
 Disallow: /index.html

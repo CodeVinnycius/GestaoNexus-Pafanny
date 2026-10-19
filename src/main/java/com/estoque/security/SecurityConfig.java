@@ -43,7 +43,7 @@ public class SecurityConfig {
                 // Arquivos públicos — apenas estáticos necessários para o login
                 .requestMatchers(
                     "/", "/login.html",
-                    "/css/**", "/js/**", "/icons/**",
+                    "/css/**", "/js/**", "/icons/**", "/img/**",
                     "/manifest.json", "/sw.js",
                     "/robots.txt", "/sitemap.xml"
                 ).permitAll()

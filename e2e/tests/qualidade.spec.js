@@ -50,7 +50,7 @@ test.describe('sem JavaScript', () => {
     for (const titulo of ['O conforto que', 'Escolha seu momento PAFANNY', 'Os pijamas PAFANNY',
       'Mais que um pijama, um momento seu.', 'Uma marca feita de carinho', 'Guia de Tamanhos',
       'Como comprar', 'Perguntas frequentes', 'Siga a PAFANNY']) {
-      await expect(page.getByText(titulo).first()).toBeVisible();
+      await expect(page.locator('main').getByText(titulo).first()).toBeVisible();
     }
     // Nada pode ficar preso em opacity 0 esperando o JS.
     const invisiveis = await page.evaluate(() => [...document.querySelectorAll('main *')]

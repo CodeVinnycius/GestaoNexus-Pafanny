@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 
 /**
  * Página da loja (/ e /loja.html) com as peças principais já em HTML, para quem está sem JavaScript.
- * Com JS nada muda: as peças vão dentro de &lt;noscript&gt; e o loja.js continua montando o catálogo.
+ * Com JS nada muda: as peças vão num &lt;noscript&gt; logo após o grid e o loja.js continua montando o catálogo.
  * Qualquer falha devolve o loja.html original — a página inicial nunca quebra por causa disto.
  */
 @Controller
@@ -91,10 +91,17 @@ public class LojaPaginaController {
 
         List<ProdutoPublicoDTO> produtos = new ArrayList<>(service.listarVisiveis());
         produtos.sort(Comparator.comparingInt(p -> pesoCategoria(p.getCategoria())));
-        StringBuilder cards = new StringBuilder("<noscript>").append(SIMBOLO_WHATSAPP);
+        // O <noscript> fica DEPOIS do #grid-produtos, com um grid próprio dentro: com JS o navegador
+        // nunca o desenha (dentro do grid, um display:contents fazia o HTML cru aparecer como texto).
+        StringBuilder cards = new StringBuilder("<noscript><div class=\"grid-produtos\">").append(SIMBOLO_WHATSAPP);
         produtos.stream().limit(PECAS_SEM_JS).forEach(p -> cards.append(card(p, nome, numero)));
-        cards.append("</noscript>");
-        return html.replace(MARCADOR_GRID, MARCADOR_GRID + cards);
+        cards.append("</div></noscript>");
+
+        int marcador = html.indexOf(MARCADOR_GRID);
+        int fimDoGrid = marcador < 0 ? -1 : html.indexOf("</div>", marcador);
+        if (fimDoGrid < 0) return html;
+        int depois = fimDoGrid + "</div>".length();
+        return html.substring(0, depois) + cards + html.substring(depois);
     }
 
     private String card(ProdutoPublicoDTO p, String nomeLoja, String numero) {

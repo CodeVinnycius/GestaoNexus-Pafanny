@@ -77,7 +77,7 @@ test.describe('sem JavaScript', () => {
     const produtos = await (await request.get('/api/loja/produtos')).json();
     const numero = config.whatsapp.replace(/\D/g, '');
     await page.goto('/');
-    const cards = page.locator('#grid-produtos .produto-card');
+    const cards = page.locator('#catalogo .produto-card');
     await expect(cards).toHaveCount(8);
     await expect(cards.first()).toBeVisible();
     await expect(page.locator('#grid-produtos .loja-msg')).toBeHidden();

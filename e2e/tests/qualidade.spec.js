@@ -72,6 +72,17 @@ test.describe('JS bloqueado ou API travada', () => {
     expect(await semNadaInvisivel(page)).toEqual([]);
   });
 
+  test('API lenta: o conteúdo do <noscript> nunca aparece como texto', async ({ page }) => {
+    await page.route('**/api/loja/produtos', () => { /* nunca responde */ });
+    await page.goto('/');
+    await page.waitForTimeout(1000);
+    const texto = await page.locator('#catalogo').innerText();
+    expect(texto).not.toContain('wa.me');
+    expect(texto).not.toContain('<article');
+    const largura = await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth);
+    expect(largura).toBe(true);
+  });
+
   test('API de produtos travada: hero aparece na hora', async ({ page }) => {
     await page.route('**/api/loja/**', () => { /* nunca responde */ });
     await page.goto('/');

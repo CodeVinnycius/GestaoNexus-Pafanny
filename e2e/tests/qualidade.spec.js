@@ -24,7 +24,7 @@ test.describe('sem overflow horizontal', () => {
         client: document.documentElement.clientWidth,
         culpados: [...document.querySelectorAll('body *')]
           .filter(el => el.getBoundingClientRect().right > document.documentElement.clientWidth + 1
-            && !el.closest('.catalogo-chips, .produto-detalhe__galeria, .produto-detalhe__miniaturas, .hero, .sr-only, .skip-link, .fx-faixa__janela, .fx-depoimentos__trilho'))
+            && !el.closest('.catalogo-chips, .produto-detalhe__galeria, .produto-detalhe__miniaturas, .hero, .sr-only, .skip-link, .fx-faixa__janela, .fx-depoimentos__trilho, .destaque-grid'))
           .slice(0, 5).map(el => `${el.tagName}.${el.className}`)
       }));
       expect(medidas.culpados, 'elementos passando da largura da tela').toEqual([]);

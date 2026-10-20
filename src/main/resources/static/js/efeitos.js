@@ -44,11 +44,39 @@
     idsAnteriores = ids;
   }
 
+  // Badge "Novidade" (opcional): coloque aqui o CÓDIGO das peças novas, ex.: ['1915', '747'].
+  // Para só visualizar, sem mexer no arquivo: abra a loja com ?novidades=1915,747 no endereço.
+  const CODIGOS_NOVIDADE = [];
+  const novidades = new Set([
+    ...CODIGOS_NOVIDADE.map(String),
+    ...(new URLSearchParams(location.search).get('novidades') || '').split(',').map(c => c.trim()).filter(Boolean)
+  ]);
+  const OLHO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="2.8"/></svg>';
+
+  /** Enfeites dos cards recém-desenhados: "Novidade" e o selo "Olhar rápido". */
+  function enfeitarCards() {
+    // `produtos` é o catálogo carregado pelo loja.js (escopo global do script).
+    const lista = typeof produtos !== 'undefined' ? produtos : [];
+    grid.querySelectorAll(':scope > .produto-card:not([data-fx-enfeitado])').forEach(card => {
+      card.dataset.fxEnfeitado = '1';
+      const area = card.querySelector('.produto-card__img');
+      if (!area) return;
+      const p = lista.find(x => String(x.id) === card.dataset.id);
+      if (p && p.codigo && novidades.has(String(p.codigo))) {
+        area.insertAdjacentHTML('beforeend', '<span class="fx-novidade">Novidade</span>');
+      }
+      // Atalho visual para o mouse; teclado e leitor de tela usam o "Ver detalhes" do card.
+      // O clique sobe até o card, que já abre o detalhe (loja.js).
+      if (COM_MOUSE) area.insertAdjacentHTML('beforeend', `<span class="fx-olhar" aria-hidden="true">${OLHO}Olhar rápido</span>`);
+    });
+  }
+
   if (grid) {
     mostrarSkeleton();
-    new MutationObserver(() => { mostrarSkeleton(); animarEntradaDosCards(); })
+    new MutationObserver(() => { mostrarSkeleton(); animarEntradaDosCards(); enfeitarCards(); })
       .observe(grid, { childList: true });
     animarEntradaDosCards();
+    enfeitarCards();
 
     // Segunda foto no hover (só com mouse). Ela só é baixada no primeiro hover do card.
     if (COM_MOUSE) {
@@ -69,6 +97,45 @@
         img.after(foto2);
       });
     }
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  //  CHIPS: o chip escolhido "infla" — só quando a linha escolhida muda
+  // ══════════════════════════════════════════════════════════════════════════
+  const chips = document.getElementById('categorias');
+  if (chips) {
+    let ativoAnterior = null;
+    new MutationObserver(() => {
+      const ativo = chips.querySelector('.chip.active');
+      const chave = ativo ? (ativo.dataset.cat || ativo.id) : null;
+      if (ativo && chave !== ativoAnterior && ativoAnterior !== null && !MENOS_MOVIMENTO) ativo.classList.add('fx-chip-novo');
+      ativoAnterior = chave;
+    }).observe(chips, { childList: true });
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  //  CARDS: inclinação 3D sutil seguindo o mouse (só desktop) e brilho no hover
+  // ══════════════════════════════════════════════════════════════════════════
+  if (COM_MOUSE && !MENOS_MOVIMENTO) {
+    const INCLINACAO = 4; // graus, no máximo
+    let cardAtual = null;
+    let quadro = 0;
+    document.addEventListener('pointermove', e => {
+      const card = e.target.closest && e.target.closest('.produto-card, .destaque-card');
+      if (cardAtual && card !== cardAtual) { cardAtual.classList.remove('fx-tilt'); cardAtual.style.removeProperty('--fx-rx'); cardAtual.style.removeProperty('--fx-ry'); }
+      cardAtual = card;
+      if (!card) return;
+      cancelAnimationFrame(quadro);
+      quadro = requestAnimationFrame(() => {
+        const r = card.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width - .5;
+        const y = (e.clientY - r.top) / r.height - .5;
+        card.style.setProperty('--fx-rx', `${(-y * INCLINACAO).toFixed(2)}deg`);
+        card.style.setProperty('--fx-ry', `${(x * INCLINACAO).toFixed(2)}deg`);
+        card.classList.add('fx-tilt');
+      });
+    }, { passive: true });
+    document.documentElement.addEventListener('mouseleave', () => { if (cardAtual) cardAtual.classList.remove('fx-tilt'); cardAtual = null; });
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -93,6 +160,9 @@
   document.addEventListener('click', e => {
     const botao = e.target.closest('#btn-quero-esse');
     if (!botao || MENOS_MOVIMENTO) return;
+    botao.classList.remove('fx-pulsando');
+    void botao.offsetWidth; // reinicia a animação se clicar de novo
+    botao.classList.add('fx-pulsando');
     const r = botao.getBoundingClientRect();
     for (let i = 0; i < 5; i++) {
       const c = document.createElementNS('http://www.w3.org/2000/svg', 'svg');

@@ -954,3 +954,147 @@ html.lenis, html.lenis body { height: auto; }
   .destaque-grid { grid-template-columns: repeat(2, 1fr); }
   .destaque-card { aspect-ratio: 4/5; }
 }
+
+/* ── CARDS E CATÁLOGO ─────────────────────────────────────────
+   Sombra suave dourada e elevação no hover, inclinação 3D sutil seguindo o
+   mouse (.fx-tilt, efeitos.js — só desktop), brilho que passa uma vez,
+   "aperto" de 0.98 no toque, selo "Olhar rápido", badge "Novidade",
+   chip escolhido que "infla" e o modal abrindo/fechando com suavidade. ── */
+.produto-card {
+  position: relative;
+  border-radius: var(--radius-lg);
+  transition: box-shadow .6s var(--fx-ease-suave), transform .6s var(--fx-ease-suave), border-color .6s var(--fx-ease-suave);
+}
+.produto-card:hover {
+  border-color: var(--border);
+  box-shadow: 0 26px 50px -26px rgba(138, 106, 28, .5), 0 8px 18px -12px rgba(58, 46, 31, .18);
+}
+.produto-card__img { border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+
+/* Inclinação: perspectiva + leve giro; o translate do hover vem junto. */
+.produto-card.fx-tilt,
+.destaque-card.fx-tilt {
+  transform: perspective(900px) rotateX(var(--fx-rx, 0deg)) rotateY(var(--fx-ry, 0deg)) translateY(-4px);
+  transition: transform .18s ease-out, box-shadow .6s var(--fx-ease-suave);
+}
+.destaque-card { transition: transform .6s var(--fx-ease-suave), box-shadow .6s var(--fx-ease-suave); }
+.destaque-card:hover { box-shadow: 0 30px 56px -28px rgba(138, 106, 28, .55); }
+
+/* Brilho que atravessa o card uma vez no hover. */
+@keyframes fxBrilhoCard {
+  from { transform: translateX(-120%) skewX(-16deg); opacity: 0; }
+  20%  { opacity: 1; }
+  to   { transform: translateX(220%) skewX(-16deg); opacity: 0; }
+}
+.produto-card::after,
+.destaque-card::before {
+  content: '';
+  position: absolute; top: 0; bottom: 0; left: 0;
+  width: 45%;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(255, 248, 240, 0), rgba(255, 248, 240, .32), rgba(255, 248, 240, 0));
+  opacity: 0;
+}
+.destaque-card__label { z-index: 2; }
+@media (hover: hover) and (pointer: fine) {
+  .produto-card:hover::after,
+  .destaque-card:hover::before { animation: fxBrilhoCard 1.25s var(--fx-ease-suave) both; }
+}
+
+/* Toque: um "aperto" suave em vez do hover. */
+@media (hover: none) {
+  .produto-card, .destaque-card { -webkit-tap-highlight-color: transparent; }
+  .produto-card:active, .destaque-card:active { transform: scale(.98); transition-duration: .15s; }
+}
+
+/* Selo "Olhar rápido" (mouse): aparece no centro da foto no hover. */
+.fx-olhar {
+  position: absolute; left: 50%; top: 46%;
+  z-index: 2;
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 9px 16px;
+  border-radius: 99px;
+  background: rgba(255, 248, 240, .92);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: var(--ink);
+  font-size: .75rem; font-weight: 500; letter-spacing: .03em;
+  white-space: nowrap;
+  box-shadow: 0 10px 22px -12px rgba(58, 46, 31, .45);
+  translate: -50% 10px;
+  opacity: 0;
+  transition: opacity .45s var(--fx-ease-suave), translate .55s var(--fx-ease-suave);
+  pointer-events: none;
+}
+.fx-olhar svg { width: 15px; height: 15px; }
+.produto-card:hover .fx-olhar { opacity: 1; translate: -50% 0; }
+
+/* Badge "Novidade" (opcional, efeitos.js). */
+.fx-novidade {
+  position: absolute; right: 9px; top: 9px;
+  z-index: 2;
+  padding: 5px 11px;
+  border-radius: 99px;
+  background: linear-gradient(135deg, var(--gold-text), var(--fx-gold-text-fundo));
+  color: var(--offwhite);
+  font-size: .7rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+  box-shadow: 0 6px 14px -8px rgba(58, 46, 31, .55);
+}
+
+/* Chips: o escolhido "infla" e o texto clareia junto. */
+.chip { position: relative; isolation: isolate; transition: background var(--dur), color .35s, border-color var(--dur), translate .35s var(--fx-ease-suave); }
+.chip:hover { translate: 0 -1px; }
+@keyframes fxChipInfla {
+  from { transform: scale(.55); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+@keyframes fxChipTexto { from { color: var(--ink-soft); } }
+.chip.active.fx-chip-novo { background: transparent; animation: fxChipTexto .45s var(--fx-ease-suave); }
+.chip.active.fx-chip-novo::before {
+  content: '';
+  position: absolute; inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(135deg, var(--ink), var(--fx-ink-claro));
+  animation: fxChipInfla .45s var(--fx-ease-suave) both;
+}
+
+/* Modal (detalhe / olhar rápido): fundo esfumado e a folha abrindo e fechando suave.
+   Navegadores sem transição de display simplesmente abrem e fecham na hora. */
+.loja-overlay {
+  opacity: 0;
+  backdrop-filter: blur(0px);
+  transition: opacity .4s var(--fx-ease-suave), backdrop-filter .4s var(--fx-ease-suave), display .4s allow-discrete, overlay .4s allow-discrete;
+}
+.loja-overlay.open { animation: none; opacity: 1; backdrop-filter: blur(4px); }
+@starting-style { .loja-overlay.open { opacity: 0; backdrop-filter: blur(0px); } }
+.loja-sheet {
+  animation: none;
+  transform: translateY(40px);
+  opacity: 0;
+  transition: transform .55s var(--fx-ease-suave), opacity .45s var(--fx-ease-suave);
+}
+.loja-overlay.open .loja-sheet { transform: none; opacity: 1; }
+@starting-style { .loja-overlay.open .loja-sheet { transform: translateY(40px); opacity: 0; } }
+@media (min-width: 620px) {
+  .loja-sheet { transform: translateY(18px) scale(.97); }
+  @starting-style { .loja-overlay.open .loja-sheet { transform: translateY(18px) scale(.97); opacity: 0; } }
+}
+
+/* "Quero esse": aperto no clique e uma pulsação com halo verde. */
+@keyframes fxPulsa {
+  0%   { transform: scale(1); box-shadow: 0 0 0 0 rgba(15, 122, 67, .35); }
+  30%  { transform: scale(.96); }
+  60%  { transform: scale(1.02); box-shadow: 0 0 0 12px rgba(15, 122, 67, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(15, 122, 67, 0); }
+}
+.btn-whatsapp:active { transform: scale(.97); }
+.btn-whatsapp.fx-pulsando { animation: fxPulsa .7s var(--fx-ease-suave); }
+
+@media (prefers-reduced-motion: reduce) {
+  .produto-card.fx-tilt, .destaque-card.fx-tilt { transform: none; }
+  .produto-card:hover::after, .destaque-card:hover::before, .chip.active.fx-chip-novo::before,
+  .btn-whatsapp.fx-pulsando { animation: none !important; }
+  .loja-overlay, .loja-sheet { transition: none; }
+}

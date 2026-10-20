@@ -120,6 +120,36 @@
   }
 
   // ══════════════════════════════════════════════════════════════════════════
+  //  "COMO COMPRAR": LINHA LIGANDO OS NÚMEROS
+  // ══════════════════════════════════════════════════════════════════════════
+  // Mede o centro do 1º e do último número; o CSS desenha a linha entre eles (vertical no
+  // celular, horizontal a partir de 800px) e a anima com a rolagem.
+  const passos = document.querySelector('.passos');
+  function medirLinhaDosPassos() {
+    const nums = passos ? passos.querySelectorAll('.passo__num') : [];
+    if (nums.length < 2) return;
+    // Posição de layout (offset*), que ignora as animações de entrada em andamento.
+    const centro = el => {
+      let x = el.offsetWidth / 2, y = el.offsetHeight / 2;
+      for (let n = el; n && n !== passos; n = n.offsetParent) { x += n.offsetLeft; y += n.offsetTop; }
+      return { x, y };
+    };
+    const a = centro(nums[0]), b = centro(nums[nums.length - 1]);
+    const horizontal = Math.abs(b.x - a.x) > Math.abs(b.y - a.y);
+    passos.style.setProperty('--fx-linha-ini', `${horizontal ? a.x : a.y}px`);
+    passos.style.setProperty('--fx-linha-tam', `${Math.abs(horizontal ? b.x - a.x : b.y - a.y)}px`);
+    passos.style.setProperty('--fx-linha-x', `${a.x}px`);
+    passos.style.setProperty('--fx-linha-y', `${a.y}px`);
+    passos.classList.add('fx-com-linha');
+  }
+  if (passos) {
+    medirLinhaDosPassos();
+    let espera;
+    addEventListener('resize', () => { clearTimeout(espera); espera = setTimeout(medirLinhaDosPassos, 150); });
+    if (document.fonts) document.fonts.ready.then(medirLinhaDosPassos);
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
   //  SCROLL SUAVE (LENIS) — só desktop com mouse, nunca no toque nem com menos movimento
   // ══════════════════════════════════════════════════════════════════════════
   function ligarLenis() {

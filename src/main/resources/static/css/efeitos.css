@@ -189,25 +189,27 @@ body::after {
 .js .passos.reveal { opacity: 1; transform: none; }
 
 /* Só quando o navegador não tem as animações guiadas pelo scroll (bloco ROLAGEM, .fx-sd). */
+/* Nos passos anima o texto, não o card: o card animado criaria um contexto de
+   empilhamento e a linha que liga os números passaria por cima deles. */
 .js:not(.fx-sd) .section__head.reveal > *,
 .js:not(.fx-sd) .destaque-grid.reveal > *,
 .js:not(.fx-sd) .pilares.reveal > *,
-.js:not(.fx-sd) .passos.reveal > * { opacity: 0; }
+.js:not(.fx-sd) .passos.reveal .passo > div { opacity: 0; }
 
 .js:not(.fx-sd) .section__head.reveal.in-view > *,
 .js:not(.fx-sd) .destaque-grid.reveal.in-view > *,
 .js:not(.fx-sd) .pilares.reveal.in-view > *,
-.js:not(.fx-sd) .passos.reveal.in-view > * {
+.js:not(.fx-sd) .passos.reveal.in-view .passo > div {
   animation: fxSobe 1s var(--fx-ease-suave) both;
   animation-delay: calc(var(--fx-i, 0) * 110ms);
 }
-:is(.section__head, .destaque-grid, .pilares, .passos) > :nth-child(2) { --fx-i: 1; }
-:is(.section__head, .destaque-grid, .pilares, .passos) > :nth-child(3) { --fx-i: 2; }
-:is(.section__head, .destaque-grid, .pilares, .passos) > :nth-child(4) { --fx-i: 3; }
-:is(.section__head, .destaque-grid, .pilares, .passos) > :nth-child(5) { --fx-i: 4; }
-:is(.section__head, .destaque-grid, .pilares, .passos) > :nth-child(6) { --fx-i: 5; }
-:is(.section__head, .destaque-grid, .pilares, .passos) > :nth-child(7) { --fx-i: 6; }
-:is(.section__head, .destaque-grid, .pilares, .passos) > :nth-child(n+8) { --fx-i: 7; }
+:is(.section__head, .destaque-grid, .pilares, .passos, .sobre, .instagram-box, .faq-lista) > :nth-child(2) { --fx-i: 1; }
+:is(.section__head, .destaque-grid, .pilares, .passos, .sobre, .instagram-box, .faq-lista) > :nth-child(3) { --fx-i: 2; }
+:is(.section__head, .destaque-grid, .pilares, .passos, .sobre, .instagram-box, .faq-lista) > :nth-child(4) { --fx-i: 3; }
+:is(.section__head, .destaque-grid, .pilares, .passos, .sobre, .instagram-box, .faq-lista) > :nth-child(5) { --fx-i: 4; }
+:is(.section__head, .destaque-grid, .pilares, .passos, .sobre, .instagram-box, .faq-lista) > :nth-child(6) { --fx-i: 5; }
+:is(.section__head, .destaque-grid, .pilares, .passos, .sobre, .instagram-box, .faq-lista) > :nth-child(7) { --fx-i: 6; }
+:is(.section__head, .destaque-grid, .pilares, .passos, .sobre, .instagram-box, .faq-lista) > :nth-child(n+8) { --fx-i: 7; }
 
 /* ── ESSÊNCIA: micro-animação dos ícones ao aparecerem ────────
    Uma vez só: os corações batem, o laço balança, a nuvem flutua. ── */
@@ -235,7 +237,7 @@ body::after {
 
 @media (prefers-reduced-motion: reduce) {
   .js .section__head.reveal > *, .js .destaque-grid.reveal > *,
-  .js .pilares.reveal > *, .js .passos.reveal > * { opacity: 1 !important; animation: none !important; }
+  .js .pilares.reveal > *, .js .passos.reveal .passo > div { opacity: 1 !important; animation: none !important; }
   .js .pilares.in-view .pilar__icone { animation: none !important; }
 }
 @media (forced-colors: active) {
@@ -479,3 +481,163 @@ html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-stopped { overflow: clip; }
 
 @media print { .fx-progresso, .fx-topo, .fx-aura { display: none; } }
+
+/* ── ANIMAÇÕES GUIADAS PELO SCROLL ────────────────────────────
+   Com .fx-sd (navegador com animation-timeline, ligado pelo rolagem.js):
+   cada item anima conforme a própria posição na tela — fade + leve subida
+   com desfoque que foca, cards em cascata, fotos se revelando de baixo
+   para cima, títulos palavra por palavra, parallax nos enfeites e a linha
+   do "Como comprar" se desenhando. Usa translate/scale/rotate (e não
+   transform), então soma com o hover em vez de anulá-lo.
+   Sem suporte, vale o reveal por IntersectionObserver (bloco REVEAL). ── */
+@keyframes fxRevela {
+  from { opacity: 0; translate: 0 22px; filter: blur(6px); }
+  to   { opacity: 1; translate: none; filter: none; }
+}
+@keyframes fxRevelaLeve {
+  from { opacity: 0; translate: 0 16px; }
+  to   { opacity: 1; translate: none; }
+}
+@keyframes fxCascata {
+  from { opacity: 0; scale: .96; rotate: -1.2deg; translate: 0 26px; }
+  to   { opacity: 1; scale: 1; rotate: 0deg; translate: none; }
+}
+@keyframes fxMascara {
+  from { clip-path: inset(100% 0 0 0); }
+  to   { clip-path: inset(0 0 0 0); }
+}
+@keyframes fxParallax {
+  from { translate: 0 var(--fx-par, 36px); }
+  to   { translate: 0 calc(var(--fx-par, 36px) * -1); }
+}
+@keyframes fxLinhaX { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes fxLinhaY { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes fxAcende {
+  from { scale: .55; opacity: .35; }
+  to   { scale: 1; opacity: 1; }
+}
+
+/* Os blocos com .reveal ficam visíveis: quem anima são os itens de dentro. */
+.js.fx-sd .reveal { opacity: 1; transform: none; transition: none; }
+
+.js.fx-sd :is(.section__head > :not(.fx-palavras), .pilares > *, .passo > div, .sobre > *,
+              .tamanhos-painel, .faq-lista > *, .instagram-box > *) {
+  animation: fxRevela linear both;
+  animation-timeline: view();
+  animation-range: entry calc(4% + var(--fx-i, 0) * 6%) cover calc(26% + var(--fx-i, 0) * 6%);
+}
+.js.fx-sd .fx-palavra {
+  display: inline-block;
+  animation: fxRevela linear both;
+  animation-timeline: view();
+  animation-range: entry calc(8% + var(--p, 0) * 4%) cover calc(28% + var(--p, 0) * 4%);
+}
+
+/* Cards em cascata: a coluna de cada card atrasa um pouco a entrada. */
+.js.fx-sd :is(.destaque-grid > *, .grid-produtos > .produto-card) {
+  animation: fxCascata linear both;
+  animation-timeline: view();
+  animation-range: entry calc(var(--fx-col, 0) * 7%) cover calc(24% + var(--fx-col, 0) * 7%);
+}
+.grid-produtos > :nth-child(2n), .destaque-grid > :nth-child(2n) { --fx-col: 1; }
+@media (min-width: 640px) {
+  .grid-produtos > * { --fx-col: 0; }
+  .grid-produtos > :nth-child(3n+2) { --fx-col: 1; }
+  .grid-produtos > :nth-child(3n) { --fx-col: 2; }
+}
+@media (min-width: 700px) {
+  .destaque-grid > * { --fx-col: 0; }
+  .destaque-grid > :nth-child(4n+2) { --fx-col: 1; }
+  .destaque-grid > :nth-child(4n+3) { --fx-col: 2; }
+  .destaque-grid > :nth-child(4n) { --fx-col: 3; }
+}
+@media (min-width: 980px) {
+  .grid-produtos > * { --fx-col: 0; }
+  .grid-produtos > :nth-child(4n+2) { --fx-col: 1; }
+  .grid-produtos > :nth-child(4n+3) { --fx-col: 2; }
+  .grid-produtos > :nth-child(4n) { --fx-col: 3; }
+}
+@media (min-width: 1440px) {
+  .grid-produtos > * { --fx-col: 0; }
+  .grid-produtos > :nth-child(5n+2) { --fx-col: 1; }
+  .grid-produtos > :nth-child(5n+3) { --fx-col: 2; }
+  .grid-produtos > :nth-child(5n+4) { --fx-col: 3; }
+  .grid-produtos > :nth-child(5n) { --fx-col: 4; }
+}
+
+/* Fotos dos cards se revelam de baixo para cima. */
+.js.fx-sd :is(.destaque-card img, .produto-card__img img) {
+  animation: fxMascara linear both;
+  animation-timeline: view();
+  animation-range: entry 5% cover 32%;
+}
+
+/* Enfeites com parallax (menos deslocamento no celular). */
+.js.fx-sd .fx-decor {
+  animation: fxParallax linear both;
+  animation-timeline: view();
+  animation-range: cover;
+}
+.fx-decor { --fx-par: 14px; }
+@media (min-width: 900px) { .fx-decor { --fx-par: 36px; } }
+
+/* "Como comprar": linha que liga os números e se desenha com a rolagem.
+   Início e fim (centro do 1º e do último número) vêm do rolagem.js. */
+.passos { position: relative; view-timeline: --fx-passos; }
+.passo__num { position: relative; z-index: 2; }
+.passos.fx-com-linha::before {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(180deg, var(--gold-soft), var(--gold), var(--gold-soft));
+  left: var(--fx-linha-x); width: 1.5px;
+  top: var(--fx-linha-ini); height: var(--fx-linha-tam);
+  transform-origin: 50% 0;
+}
+@media (min-width: 800px) {
+  .passos.fx-com-linha::before {
+    background: linear-gradient(90deg, var(--gold-soft), var(--gold), var(--gold-soft));
+    left: var(--fx-linha-ini); width: var(--fx-linha-tam);
+    top: var(--fx-linha-y); height: 1.5px;
+    transform-origin: 0 50%;
+  }
+}
+.js.fx-sd .passos.fx-com-linha::before {
+  animation: fxLinhaY linear both;
+  animation-timeline: --fx-passos;
+  animation-range: entry 70% cover 55%;
+}
+.js.fx-sd .passo__num {
+  animation: fxAcende linear both;
+  animation-timeline: --fx-passos;
+  animation-range: entry calc(70% + var(--fx-i, 0) * 8%) cover calc(30% + var(--fx-i, 0) * 8%);
+}
+@media (min-width: 800px) {
+  .js.fx-sd .passos.fx-com-linha::before { animation-name: fxLinhaX; }
+}
+
+/* Sem animation-timeline: a linha se desenha quando o bloco aparece... */
+.js:not(.fx-sd) .passos.fx-com-linha::before { transform: scaleY(0); transition: transform 1.6s var(--fx-ease-suave) .3s; }
+.js:not(.fx-sd) .passos.fx-com-linha.in-view::before { transform: none; }
+@media (min-width: 800px) {
+  .js:not(.fx-sd) .passos.fx-com-linha::before { transform: scaleX(0); }
+  .js:not(.fx-sd) .passos.fx-com-linha.in-view::before { transform: none; }
+}
+/* ...e as palavras do título entram em sequência. */
+.js:not(.fx-sd) .section__head .fx-palavra { display: inline-block; opacity: 0; }
+.js:not(.fx-sd) .section__head.in-view .fx-palavra {
+  animation: fxRevelaLeve .9s var(--fx-ease-suave) both;
+  animation-delay: calc(.15s + var(--p, 0) * 80ms);
+}
+
+/* Celular: sem desfoque (mais leve para manter 60fps). */
+@media (max-width: 699px) {
+  .js.fx-sd :is(.section__head > :not(.fx-palavras), .pilares > *, .passo > div, .sobre > *,
+                .tamanhos-painel, .faq-lista > *, .instagram-box > *, .fx-palavra) { animation-name: fxRevelaLeve; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .section__head .fx-palavra { opacity: 1 !important; animation: none !important; }
+  .js .passos.fx-com-linha::before { transform: none !important; animation: none !important; }
+}

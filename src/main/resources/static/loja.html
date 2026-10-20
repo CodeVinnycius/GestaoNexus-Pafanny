@@ -127,7 +127,10 @@ setTimeout(function () { if (!window.lojaPronta) document.documentElement.classL
         </div>
       </div>
       <div class="hero__figure reveal" id="hero-figure">
-        <img id="hero-img" src="/img/foto-principal.jpg" alt="Mulher relaxando no sofá de casa com pijama longo estampado PAFANNY" width="1085" height="1450" loading="eager" fetchpriority="high"/>
+        <picture>
+          <source type="image/webp" srcset="/img/foto-principal-480.webp 480w, /img/foto-principal-800.webp 800w, /img/foto-principal-1085.webp 1085w" sizes="(min-width: 900px) 480px, calc(100vw - 40px)"/>
+          <img id="hero-img" src="/img/foto-principal.jpg" alt="Mulher relaxando no sofá de casa com pijama longo estampado PAFANNY" width="1085" height="1450" loading="eager" fetchpriority="high"/>
+        </picture>
         <span class="hero__badge">Feito com carinho, para você</span>
       </div>
     </div>

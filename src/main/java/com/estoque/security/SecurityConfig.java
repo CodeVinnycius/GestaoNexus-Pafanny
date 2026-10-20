@@ -50,7 +50,7 @@ public class SecurityConfig {
 
                 // Loja pública — catálogo, fotos de produto e a própria página
                 .requestMatchers(
-                    "/loja.html", "/uploads/**",
+                    "/loja.html", "/uploads/**", "/miniaturas/**",
                     "/api/loja/**"
                 ).permitAll()
 

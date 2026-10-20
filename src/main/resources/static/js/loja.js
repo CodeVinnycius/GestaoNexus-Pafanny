@@ -159,6 +159,7 @@ function renderHero() {
     const comFoto = produtos.find(p => p.imagens && p.imagens.length);
     if (!comFoto) { $('hero-figure').style.display = 'none'; return; }
     aplicarFallbackImagem(img);
+    img.parentElement.querySelectorAll('source').forEach(s => s.remove()); // senão o <picture> ignora o src novo
     img.src = comFoto.imagens[0];
     img.alt = `Pijama ${comFoto.nome} PAFANNY`; // propriedade DOM: sem escape HTML
   };
@@ -177,7 +178,7 @@ function renderDestaque() {
     return `
       <div role="listitem">
         <button type="button" class="destaque-card" data-cat="${escAttr(cat)}" aria-label="Ver pijamas da linha ${escAttr(cat)}">
-          ${item.imagens && item.imagens.length ? `<img src="${esc(item.imagens[0])}" alt="" loading="lazy" decoding="async"/>` : ''}
+          ${item.imagens && item.imagens.length ? `<img ${fotoResponsiva(item.imagens[0], '(min-width: 700px) 25vw, 50vw')} alt="" loading="lazy" decoding="async"/>` : ''}
           <span class="destaque-card__label">
             <span class="destaque-card__nome">${esc(cat)}</span>
             <span class="destaque-card__preco">${item.preco != null ? 'a partir de ' + moeda(item.preco) : 'Consulte o valor'}</span>
@@ -299,7 +300,7 @@ function renderGrid(anunciar = false) {
     return `
     <article class="produto-card" data-id="${p.id}">
       <div class="produto-card__img">
-        ${p.imagens && p.imagens.length ? `<img src="${esc(p.imagens[0])}" alt="Pijama ${escAttr(p.nome)}" loading="lazy" decoding="async"${p.imagens[1] ? ` data-foto2="${esc(p.imagens[1])}"` : ''}/>` : '<span class="sem-foto" aria-hidden="true">♡</span>'}
+        ${p.imagens && p.imagens.length ? `<img ${fotoResponsiva(p.imagens[0], TAMANHO_CARD)} alt="Pijama ${escAttr(p.nome)}" loading="lazy" decoding="async"${p.imagens[1] ? ` data-foto2="${esc(miniatura(p.imagens[1], 540))}"` : ''}/>` : '<span class="sem-foto" aria-hidden="true">♡</span>'}
         <button type="button" class="produto-card__fav ${fav ? 'ativo' : ''}" data-id="${p.id}" aria-label="Favoritar ${escAttr(p.nome)}" aria-pressed="${fav}">
           <svg viewBox="0 0 24 24" fill="${fav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 21s-7.5-4.6-10-9.3C.4 8.2 2 4.8 5.4 4.1c2-.4 4 .5 6.6 3 2.6-2.5 4.6-3.4 6.6-3C21.9 4.8 23.5 8.2 22 11.7 19.5 16.4 12 21 12 21z"/></svg>
         </button>
@@ -414,7 +415,7 @@ function renderDetalhe(focarSeletor) {
   const p = produtoAtual;
   const imgs = p.imagens && p.imagens.length ? p.imagens : [];
   const galeria = imgs.length
-    ? imgs.map((url, i) => `<img data-idx="${i}" src="${esc(url)}" alt="Foto ${i + 1} de ${imgs.length} do pijama ${escAttr(p.nome)}" ${i ? 'loading="lazy" ' : ''}decoding="async"/>`).join('')
+    ? imgs.map((url, i) => `<img data-idx="${i}" ${fotoResponsiva(url, '(min-width: 620px) 560px, 100vw', [800, 1200])} alt="Foto ${i + 1} de ${imgs.length} do pijama ${escAttr(p.nome)}" ${i ? 'loading="lazy" ' : ''}decoding="async"/>`).join('')
     : '<span class="sem-foto" aria-hidden="true">♡</span>';
 
   const temVariacoes = p.variacoes && p.variacoes.length > 0;
@@ -424,7 +425,7 @@ function renderDetalhe(focarSeletor) {
   $('conteudo-produto').innerHTML = `
     <div class="produto-detalhe__galeria" id="galeria-detalhe">${galeria}</div>
     ${imgs.length > 1 ? `<div class="produto-detalhe__dots" id="dots-detalhe" aria-hidden="true">${imgs.map((_, i) => `<span class="${i === 0 ? 'ativo' : ''}"></span>`).join('')}</div>
-    <div class="produto-detalhe__miniaturas" id="miniaturas-detalhe">${imgs.map((url, i) => `<button type="button" data-idx="${i}" class="${i === 0 ? 'ativa' : ''}" aria-label="Ver foto ${i + 1} de ${imgs.length}" aria-pressed="${i === 0}"><img src="${esc(url)}" alt="" loading="lazy" decoding="async"/></button>`).join('')}</div>` : ''}
+    <div class="produto-detalhe__miniaturas" id="miniaturas-detalhe">${imgs.map((url, i) => `<button type="button" data-idx="${i}" class="${i === 0 ? 'ativa' : ''}" aria-label="Ver foto ${i + 1} de ${imgs.length}" aria-pressed="${i === 0}"><img src="${esc(miniatura(url, 360))}" data-original="${esc(url)}" alt="" loading="lazy" decoding="async"/></button>`).join('')}</div>` : ''}
     <div class="produto-detalhe__body">
       <div class="produto-detalhe__header">
         <div>
@@ -669,9 +670,29 @@ const esc     = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 // visível em nomes como "D'Ana" e quebrava o filtro por categoria com apóstrofo.)
 const escAttr = esc;
 
+// ── Fotos de produto em tamanho certo (MiniaturaController) ─────────────────
+// /uploads/produtos/x.jpg -> /miniaturas/540/x.jpg. Se a miniatura falhar, volta para a original.
+const TAMANHO_CARD = '(min-width: 1440px) 20vw, (min-width: 980px) 25vw, (min-width: 640px) 33vw, 50vw';
+function miniatura(url, largura) {
+  const m = /^\/uploads\/produtos\/([0-9a-fA-F-]{36}\.(?:jpe?g|png))$/.exec(url || '');
+  return m ? `/miniaturas/${largura}/${m[1]}` : url;
+}
+function fotoResponsiva(url, sizes, larguras = [360, 540, 800]) {
+  if (miniatura(url, 360) === url) return `src="${esc(url)}"`;
+  const srcset = larguras.map(w => `${miniatura(url, w)} ${w}w`).join(', ');
+  return `src="${esc(miniatura(url, larguras[1] || larguras[0]))}" srcset="${esc(srcset)}" sizes="${sizes}" data-original="${esc(url)}"`;
+}
+
 /** Fallback elegante quando uma foto não carrega — nunca mostra o ícone quebrado do navegador. */
 function aplicarFallbackImagem(img) {
-  img.addEventListener('error', () => {
+  img.addEventListener('error', function tentar() {
+    if (img.dataset.original && !img.dataset.originalTentada) {
+      img.dataset.originalTentada = '1';
+      img.removeAttribute('srcset');
+      img.src = img.dataset.original;
+      img.addEventListener('error', tentar, { once: true });
+      return;
+    }
     if (img.dataset.fallbackAplicado) return;
     img.dataset.fallbackAplicado = '1';
     console.warn('[PAFANNY] Imagem quebrada:', img.src);

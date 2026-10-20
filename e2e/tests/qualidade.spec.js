@@ -119,7 +119,9 @@ test('nenhum nome que bloqueadores de anúncio costumam barrar', async ({ page }
   const nomes = await page.evaluate(() => [...document.querySelectorAll('*')]
     .flatMap(el => [el.id, ...el.classList]).filter(Boolean));
   expect(nomes.filter(n => proibido.test(n))).toEqual([]);
-  expect(urls.filter(u => !u.startsWith('/uploads/') && proibido.test(u))).toEqual([]);
+  // Fotos de produto têm nome aleatório (UUID) que às vezes contém "ad" (ex.: d54429ad-...): só a pasta conta.
+  const semNomeDeFoto = u => /^\/(uploads|miniaturas)\//.test(u) ? u.replace(/[^/]+$/, '') : u;
+  expect(urls.map(semNomeDeFoto).filter(u => proibido.test(u))).toEqual([]);
 });
 
 test('todos os arquivos da página respondem 200; os da loja com cache e gzip', async ({ page, request }) => {

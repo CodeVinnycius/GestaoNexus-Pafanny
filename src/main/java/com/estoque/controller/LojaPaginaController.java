@@ -138,7 +138,7 @@ public class LojaPaginaController {
         String nome = esc(p.getNome());
         StringBuilder s = new StringBuilder("<article class=\"produto-card\"><div class=\"produto-card__img\">");
         if (p.getImagens() != null && !p.getImagens().isEmpty()) {
-            s.append("<img src=\"").append(esc(p.getImagens().get(0))).append("\" alt=\"Pijama ").append(nome)
+            s.append("<img src=\"").append(esc(miniatura(p.getImagens().get(0)))).append("\" alt=\"Pijama ").append(nome)
              .append("\" loading=\"lazy\" decoding=\"async\"/>");
         } else {
             s.append("<span class=\"sem-foto\" aria-hidden=\"true\">♡</span>");
@@ -180,6 +180,12 @@ public class LojaPaginaController {
         if (!m.find()) return html;
         String tag = m.group().replace("href=\"#\"", "href=\"" + esc(url) + "\"");
         return html.substring(0, m.start()) + tag + html.substring(m.end());
+    }
+
+    /** /uploads/produtos/x.jpg -> /miniaturas/540/x.jpg (MiniaturaController); outros endereços ficam iguais. */
+    private static String miniatura(String url) {
+        Matcher m = Pattern.compile("^/uploads/produtos/([0-9a-fA-F-]{36}\\.(?:jpe?g|png))$").matcher(url == null ? "" : url);
+        return m.matches() ? "/miniaturas/540/" + m.group(1) : url;
     }
 
     private static int pesoCategoria(String categoria) {

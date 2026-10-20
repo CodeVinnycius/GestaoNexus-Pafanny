@@ -1,0 +1,61 @@
+/* ═══════════════════════════════════════════════════════════
+   PAFANNY — efeitos.css
+   Camada de "vida" sobre o loja.css: gradientes, texturas e movimentos suaves.
+   Remover o <link> deste arquivo (e o <script> do efeitos.js) volta ao visual original.
+   Cada bloco abaixo é independente — dá para apagar só o que não agradar.
+   Só usa as cores da paleta (ou variações de luminosidade delas).
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  /* Liga/desliga rápido: 0 desliga o grão de tecido. */
+  --grao-opacidade: .045;
+
+  /* Variações de luminosidade da paleta existente (nenhuma cor nova de destaque). */
+  --fx-ink-claro:      #57442D; /* --ink um pouco mais claro */
+  --fx-gold-text-fundo: #76591A; /* --gold-text um pouco mais escuro */
+  --fx-ease-suave:     cubic-bezier(.25, .8, .25, 1);
+}
+
+/* ── GRADIENTES: transições entre seções ─────────────────────
+   As seções creme agora nascem e terminam em degradê com o off-white,
+   sem corte seco de cor. ─────────────────────────────────── */
+.section--cream {
+  background: linear-gradient(180deg,
+    var(--offwhite) 0,
+    var(--cream) 110px,
+    var(--cream) calc(100% - 110px),
+    var(--offwhite) 100%);
+}
+/* A última seção antes do rodapé desce até o creme mais fundo, e o rodapé
+   começa num marrom um pouco mais claro: a passagem para o escuro fica macia. */
+.section--cream:last-of-type {
+  background: linear-gradient(180deg,
+    var(--offwhite) 0,
+    var(--cream) 110px,
+    var(--cream-2) 100%);
+}
+.footer {
+  position: relative;
+  background: linear-gradient(180deg, var(--fx-ink-claro) 0, var(--ink) 220px);
+}
+.footer::before {
+  content: '';
+  position: absolute; left: 0; right: 0; top: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-soft), transparent);
+  opacity: .55;
+}
+
+/* ── GRÃO DE TECIDO ───────────────────────────────────────────
+   Imagem de ruído de 5 KB, estática, sem filtro SVG. Fica acima do
+   conteúdo (pointer-events: none) e abaixo do modal e do header.
+   Para desligar: --grao-opacidade: 0. ─────────────────────── */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  z-index: 450;
+  pointer-events: none;
+  background: url('/img/grao.png') repeat;
+  background-size: 120px 120px;
+  opacity: var(--grao-opacidade);
+}
+@media print { body::after { display: none; } }

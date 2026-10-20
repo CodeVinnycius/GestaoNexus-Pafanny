@@ -171,3 +171,71 @@ body::after {
 @media (prefers-reduced-motion: reduce) {
   .btn-gold:hover::after, .btn-outline:hover::after, .btn-whatsapp:hover::after { animation: none !important; }
 }
+
+/* ── REVEAL COM STAGGER ───────────────────────────────────────
+   Títulos, "Nossas linhas", "Essência" e "Como comprar": em vez do bloco
+   inteiro subir de uma vez, os itens entram um após o outro, devagar.
+   Só vale com a classe .js (sem JS tudo aparece normalmente). ── */
+.js .reveal { transition-duration: 1s; transition-timing-function: var(--fx-ease-suave); }
+
+@keyframes fxSobe {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+.js .section__head.reveal,
+.js .destaque-grid.reveal,
+.js .pilares.reveal,
+.js .passos.reveal { opacity: 1; transform: none; }
+
+.js .section__head.reveal > *,
+.js .destaque-grid.reveal > *,
+.js .pilares.reveal > *,
+.js .passos.reveal > * { opacity: 0; }
+
+.js .section__head.reveal.in-view > *,
+.js .destaque-grid.reveal.in-view > *,
+.js .pilares.reveal.in-view > *,
+.js .passos.reveal.in-view > * {
+  animation: fxSobe 1s var(--fx-ease-suave) both;
+  animation-delay: calc(var(--fx-i, 0) * 110ms);
+}
+:is(.section__head, .destaque-grid, .pilares, .passos) > :nth-child(2) { --fx-i: 1; }
+:is(.section__head, .destaque-grid, .pilares, .passos) > :nth-child(3) { --fx-i: 2; }
+:is(.section__head, .destaque-grid, .pilares, .passos) > :nth-child(4) { --fx-i: 3; }
+:is(.section__head, .destaque-grid, .pilares, .passos) > :nth-child(5) { --fx-i: 4; }
+:is(.section__head, .destaque-grid, .pilares, .passos) > :nth-child(6) { --fx-i: 5; }
+:is(.section__head, .destaque-grid, .pilares, .passos) > :nth-child(7) { --fx-i: 6; }
+:is(.section__head, .destaque-grid, .pilares, .passos) > :nth-child(n+8) { --fx-i: 7; }
+
+/* ── ESSÊNCIA: micro-animação dos ícones ao aparecerem ────────
+   Uma vez só: os corações batem, o laço balança, a nuvem flutua. ── */
+@keyframes fxBatida {
+  0%, 100% { transform: scale(1); }
+  20%      { transform: scale(1.14); }
+  40%      { transform: scale(1); }
+  60%      { transform: scale(1.07); }
+}
+@keyframes fxBalanca {
+  0%, 100% { transform: rotate(0); }
+  30%      { transform: rotate(-7deg); }
+  65%      { transform: rotate(5deg); }
+}
+@keyframes fxFlutua {
+  0%, 100% { transform: translateY(0); }
+  45%      { transform: translateY(-5px); }
+}
+.js .pilares.in-view .pilar__icone {
+  animation: fxBatida 1.6s var(--fx-ease-suave) both;
+  animation-delay: calc(var(--fx-i, 0) * 110ms + .55s);
+}
+.js .pilares.in-view .pilar:nth-child(3) .pilar__icone { animation-name: fxBalanca; transform-origin: 50% 30%; }
+.js .pilares.in-view .pilar:nth-child(4) .pilar__icone { animation-name: fxFlutua; animation-duration: 2.2s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .js .section__head.reveal > *, .js .destaque-grid.reveal > *,
+  .js .pilares.reveal > *, .js .passos.reveal > * { opacity: 1; animation: none !important; }
+  .js .pilares.in-view .pilar__icone { animation: none !important; }
+}
+@media (forced-colors: active) {
+  .reveal > * { opacity: 1 !important; animation: none !important; }
+}

@@ -67,11 +67,12 @@ public class LojaPaginaController {
     }
 
     private static final Pattern ARQUIVO_LOCAL =
-        Pattern.compile("(?<=[\"\\s,])/(?:css|js|img|fonts)/[A-Za-z0-9._/-]+\\.(?:css|js|jpg|jpeg|png|webp|avif|svg|woff2)(?=[\"\\s,])");
+        Pattern.compile("(?<=[\"\\s,])/(?:css|js|img|fonts)/[A-Za-z0-9._/-]+\\.(?:css|js|jpg|jpeg|png|webp|avif|svg)(?=[\"\\s,])");
 
     /**
-     * Acrescenta ?v=&lt;hash do conteúdo&gt; em cada CSS/JS/imagem/fonte local da página. Esses arquivos
+     * Acrescenta ?v=&lt;hash do conteúdo&gt; em cada CSS/JS/imagem local da página. Esses arquivos
      * são servidos com cache de 1 ano (WebConfig): quando o conteúdo muda, o link muda junto.
+     * Fontes ficam de fora (o preload precisa da mesma URL do CSS): se uma mudar, muda o nome do arquivo.
      */
     private static String versionarArquivos(String html) {
         Matcher m = ARQUIVO_LOCAL.matcher(html);

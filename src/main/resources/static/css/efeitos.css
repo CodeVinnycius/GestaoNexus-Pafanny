@@ -59,3 +59,69 @@ body::after {
   opacity: var(--grao-opacidade);
 }
 @media print { body::after { display: none; } }
+
+/* ── HERO ─────────────────────────────────────────────────────
+   Duas manchas de luz (dourado suave e creme) "respirando" bem devagar,
+   o "abraça" ganha um traço feito à mão e a foto entra com zoom lento.
+   Tudo com transform/opacity; o traço usa clip-path, uma vez só. ── */
+@keyframes fxRespiraA {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(-7%, 9%, 0) scale(1.14); }
+}
+@keyframes fxRespiraB {
+  from { transform: translate3d(0, 0, 0) scale(1.06); }
+  to   { transform: translate3d(9%, -7%, 0) scale(.94); }
+}
+.hero__bg::before,
+.hero__bg::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  will-change: transform;
+}
+.hero__bg::before {
+  width: 72vmax; height: 72vmax;
+  top: -34vmax; right: -24vmax;
+  background: radial-gradient(closest-side, rgba(231, 206, 132, .34), rgba(231, 206, 132, 0));
+  animation: fxRespiraA 22s ease-in-out infinite alternate;
+}
+.hero__bg::after {
+  width: 64vmax; height: 64vmax;
+  bottom: -34vmax; left: -26vmax;
+  background: radial-gradient(closest-side, rgba(244, 233, 216, .95), rgba(244, 233, 216, 0));
+  animation: fxRespiraB 28s ease-in-out infinite alternate;
+}
+
+/* "abraça": traço dourado feito à mão por baixo da palavra.
+   Sem JS ele já aparece pronto; com JS, é desenhado uma vez. */
+.hero__title { position: relative; z-index: 0; }
+.hero__title em { position: relative; white-space: nowrap; }
+.hero__title em::after {
+  content: '';
+  position: absolute;
+  left: -3%; right: -4%; bottom: -.1em;
+  height: .34em;
+  z-index: -1;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 20' preserveAspectRatio='none'%3E%3Cpath d='M3 13.5C38 6.5 86 4.2 128 7.6c27 2.2 47 5.4 68-1.6' fill='none' stroke='%23E7CE84' stroke-width='4.2' stroke-linecap='round'/%3E%3Cpath d='M22 16.5c40-4.6 88-5.4 150-2.2' fill='none' stroke='%23E7CE84' stroke-width='2.2' stroke-linecap='round' opacity='.6'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+}
+@keyframes fxDesenha {
+  from { clip-path: inset(0 100% 0 0); }
+  to   { clip-path: inset(0 0 0 0); }
+}
+.js .hero__title em::after { animation: fxDesenha 1.5s var(--fx-ease-suave) .9s both; }
+
+/* Foto principal: zoom bem lento ao carregar. */
+@keyframes fxZoomLento {
+  from { transform: scale(1.08); }
+  to   { transform: scale(1); }
+}
+.js .hero__figure img {
+  transform-origin: 50% 40%;
+  animation: fxZoomLento 2.6s var(--fx-ease-suave) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__bg::before, .hero__bg::after,
+  .js .hero__title em::after, .js .hero__figure img { animation: none !important; }
+}

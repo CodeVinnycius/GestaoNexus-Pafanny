@@ -43,7 +43,7 @@ public class WebConfig implements WebMvcConfigurer {
         CacheControl umAno = CacheControl.maxAge(365, TimeUnit.DAYS).cachePublic();
         registry.addResourceHandler("/css/loja*.css", "/css/efeitos*.css")
                 .addResourceLocations("classpath:/static/css/").setCacheControl(umAno);
-        registry.addResourceHandler("/js/loja*.js", "/js/efeitos*.js")
+        registry.addResourceHandler("/js/loja*.js", "/js/efeitos*.js", "/js/rolagem*.js", "/js/secoes*.js")
                 .addResourceLocations("classpath:/static/js/").setCacheControl(umAno);
         registry.addResourceHandler("/js/vendor/**")
                 .addResourceLocations("classpath:/static/js/vendor/").setCacheControl(umAno);

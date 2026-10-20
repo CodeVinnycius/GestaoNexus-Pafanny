@@ -178,24 +178,26 @@ body::after {
    Só vale com a classe .js (sem JS tudo aparece normalmente). ── */
 .js .reveal { transition-duration: 1s; transition-timing-function: var(--fx-ease-suave); }
 
+/* translate (e não transform): soma com o transform do hover em vez de anulá-lo. */
 @keyframes fxSobe {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: none; }
+  from { opacity: 0; translate: 0 14px; }
+  to   { opacity: 1; translate: none; }
 }
 .js .section__head.reveal,
 .js .destaque-grid.reveal,
 .js .pilares.reveal,
 .js .passos.reveal { opacity: 1; transform: none; }
 
-.js .section__head.reveal > *,
-.js .destaque-grid.reveal > *,
-.js .pilares.reveal > *,
-.js .passos.reveal > * { opacity: 0; }
+/* Só quando o navegador não tem as animações guiadas pelo scroll (bloco ROLAGEM, .fx-sd). */
+.js:not(.fx-sd) .section__head.reveal > *,
+.js:not(.fx-sd) .destaque-grid.reveal > *,
+.js:not(.fx-sd) .pilares.reveal > *,
+.js:not(.fx-sd) .passos.reveal > * { opacity: 0; }
 
-.js .section__head.reveal.in-view > *,
-.js .destaque-grid.reveal.in-view > *,
-.js .pilares.reveal.in-view > *,
-.js .passos.reveal.in-view > * {
+.js:not(.fx-sd) .section__head.reveal.in-view > *,
+.js:not(.fx-sd) .destaque-grid.reveal.in-view > *,
+.js:not(.fx-sd) .pilares.reveal.in-view > *,
+.js:not(.fx-sd) .passos.reveal.in-view > * {
   animation: fxSobe 1s var(--fx-ease-suave) both;
   animation-delay: calc(var(--fx-i, 0) * 110ms);
 }
@@ -233,7 +235,7 @@ body::after {
 
 @media (prefers-reduced-motion: reduce) {
   .js .section__head.reveal > *, .js .destaque-grid.reveal > *,
-  .js .pilares.reveal > *, .js .passos.reveal > * { opacity: 1; animation: none !important; }
+  .js .pilares.reveal > *, .js .passos.reveal > * { opacity: 1 !important; animation: none !important; }
   .js .pilares.in-view .pilar__icone { animation: none !important; }
 }
 @media (forced-colors: active) {
@@ -399,3 +401,81 @@ body::after {
   pointer-events: none;
   animation: fxCoracao 1.3s var(--fx-ease-suave) forwards;
 }
+
+/* ── ROLAGEM ──────────────────────────────────────────────────
+   Barra de progresso, header que some ao descer e volta ao subir,
+   botão "voltar ao topo", seção ativa no menu, tom de fundo por seção
+   e o Lenis (scroll suave no desktop). Comportamento no js/rolagem.js. ── */
+.fx-progresso {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 600;
+  height: 3px;
+  pointer-events: none;
+}
+.fx-progresso span {
+  display: block; height: 100%;
+  background: linear-gradient(90deg, var(--gold-deep), var(--gold), var(--gold-soft));
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+@keyframes fxProgresso { to { transform: scaleX(1); } }
+.fx-sd .fx-progresso span {
+  animation: fxProgresso linear both;
+  animation-timeline: scroll(root);
+}
+
+.header {
+  transition: transform .55s var(--fx-ease-suave), border-color .5s var(--fx-ease-suave);
+}
+.header.fx-escondido { transform: translateY(-100%); }
+
+.fx-topo {
+  position: fixed;
+  right: calc(24px + env(safe-area-inset-right, 0px));
+  bottom: calc(18px + 56px + 14px + env(safe-area-inset-bottom, 0px)); /* logo acima do WhatsApp */
+  z-index: 400;
+  width: var(--touch-icon); height: var(--touch-icon);
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: rgba(255, 248, 240, .92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--ink);
+  box-shadow: 0 10px 24px -14px rgba(58, 46, 31, .45);
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: opacity .45s var(--fx-ease-suave), transform .45s var(--fx-ease-suave), visibility 0s .45s;
+}
+.fx-topo.fx-visivel { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+.fx-topo:hover { border-color: var(--gold); }
+.fx-topo svg { width: 18px; height: 18px; }
+.loja-overlay.open ~ .fx-topo { visibility: hidden; }
+
+.nav__link.ativo { color: var(--ink); }
+.nav__link.ativo::after { transform: scaleX(1); }
+.mobile-nav__link.ativo { color: var(--gold-text); box-shadow: inset 3px 0 0 var(--gold); }
+
+/* Tom de fundo que muda devagar conforme a seção (só cores da paleta, bem translúcidas). */
+.fx-aura { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+.fx-aura__tom {
+  position: absolute; inset: 0;
+  opacity: 0;
+  transition: opacity 1.6s var(--fx-ease-suave);
+}
+.fx-aura__tom[data-tom="1"] { background: radial-gradient(60% 50% at 100% 0%, rgba(231, 206, 132, .16), transparent 70%), radial-gradient(50% 45% at 0% 100%, rgba(244, 233, 216, .45), transparent 70%); }
+.fx-aura__tom[data-tom="2"] { background: radial-gradient(55% 50% at 0% 0%, rgba(244, 233, 216, .5), transparent 70%), radial-gradient(55% 50% at 100% 100%, rgba(212, 175, 55, .09), transparent 70%); }
+.fx-aura__tom[data-tom="3"] { background: radial-gradient(50% 55% at 100% 60%, rgba(138, 106, 28, .07), transparent 70%), radial-gradient(50% 45% at 0% 10%, rgba(231, 206, 132, .14), transparent 70%); }
+[data-fx-tom="1"] .fx-aura__tom[data-tom="1"],
+[data-fx-tom="2"] .fx-aura__tom[data-tom="2"],
+[data-fx-tom="3"] .fx-aura__tom[data-tom="3"] { opacity: 1; }
+
+/* Lenis: a rolagem suave dele substitui o scroll-behavior do CSS. */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: clip; }
+
+@media print { .fx-progresso, .fx-topo, .fx-aura { display: none; } }

@@ -70,4 +70,18 @@
       });
     }
   }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  //  HEADER E WHATSAPP FLUTUANTE
+  // ══════════════════════════════════════════════════════════════════════════
+  const header = document.getElementById('site-header');
+  if (header) {
+    let agendado = false;
+    const atualizar = () => { agendado = false; header.classList.toggle('fx-rolou', scrollY > 10); };
+    addEventListener('scroll', () => { if (!agendado) { agendado = true; requestAnimationFrame(atualizar); } }, { passive: true });
+    atualizar();
+  }
+
+  const fab = document.getElementById('fab-whatsapp');
+  if (fab) fab.insertAdjacentHTML('afterend', '<span class="fx-fab-pulso" aria-hidden="true"></span>');
 })();

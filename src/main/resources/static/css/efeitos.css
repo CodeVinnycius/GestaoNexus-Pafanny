@@ -382,3 +382,20 @@ body::after {
 @media (prefers-reduced-motion: reduce) {
   .mobile-nav.open, .fx-fab-pulso { animation: none !important; }
 }
+
+/* ── CORAÇÕES NO "QUERO ESSE" ─────────────────────────────────
+   Alguns coraçõezinhos sobem e somem do botão no clique (efeitos.js).
+   Puramente decorativo: o WhatsApp abre do mesmo jeito. ── */
+@keyframes fxCoracao {
+  0%   { opacity: 0; transform: translate(0, 0) scale(.6) rotate(var(--fx-r)); }
+  15%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--fx-x), -78px) scale(1.05) rotate(var(--fx-r)); }
+}
+.fx-coracao {
+  position: fixed;
+  z-index: 900;
+  width: 16px; height: 16px;
+  margin: -8px 0 0 -8px;
+  pointer-events: none;
+  animation: fxCoracao 1.3s var(--fx-ease-suave) forwards;
+}

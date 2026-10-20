@@ -84,4 +84,29 @@
 
   const fab = document.getElementById('fab-whatsapp');
   if (fab) fab.insertAdjacentHTML('afterend', '<span class="fx-fab-pulso" aria-hidden="true"></span>');
+
+  // ══════════════════════════════════════════════════════════════════════════
+  //  CORAÇÕES NO "QUERO ESSE"
+  // ══════════════════════════════════════════════════════════════════════════
+  // Ouvinte à parte, no document: roda depois do clique do loja.js, que já abriu o WhatsApp.
+  const CORES_CORACAO = ['#C24B5E', '#D4AF37', '#E7CE84'];
+  document.addEventListener('click', e => {
+    const botao = e.target.closest('#btn-quero-esse');
+    if (!botao || MENOS_MOVIMENTO) return;
+    const r = botao.getBoundingClientRect();
+    for (let i = 0; i < 5; i++) {
+      const c = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      c.setAttribute('viewBox', '0 0 24 24');
+      c.setAttribute('aria-hidden', 'true');
+      c.classList.add('fx-coracao');
+      c.innerHTML = `<path fill="${CORES_CORACAO[i % 3]}" d="M12 21s-7.5-4.6-10-9.3C.4 8.2 2 4.8 5.4 4.1c2-.4 4 .5 6.6 3 2.6-2.5 4.6-3.4 6.6-3C21.9 4.8 23.5 8.2 22 11.7 19.5 16.4 12 21 12 21z"/>`;
+      c.style.left = `${r.left + r.width * (.3 + i * .1)}px`;
+      c.style.top = `${r.top + 6}px`;
+      c.style.setProperty('--fx-x', `${(i - 2) * 12 + (Math.random() * 10 - 5)}px`);
+      c.style.setProperty('--fx-r', `${Math.random() * 30 - 15}deg`);
+      c.style.animationDelay = `${i * 70}ms`;
+      c.addEventListener('animationend', () => c.remove(), { once: true });
+      document.body.appendChild(c);
+    }
+  });
 })();

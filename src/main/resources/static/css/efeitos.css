@@ -297,3 +297,33 @@ body::after {
 @media (prefers-reduced-motion: reduce) {
   .fx-skel__img::after, .fx-entra { animation: none !important; }
 }
+
+/* ── FAQ ──────────────────────────────────────────────────────
+   Abre e fecha com a altura real da resposta (grid 0fr → 1fr), sem o
+   limite de 240px do max-height, e o texto chega com um fade.
+   Navegadores sem suporte simplesmente abrem sem animação. ── */
+.faq-item__resposta {
+  display: grid;
+  grid-template-rows: 0fr;
+  max-height: none;
+  transition: grid-template-rows .5s var(--fx-ease-suave);
+}
+.faq-item.open .faq-item__resposta { grid-template-rows: 1fr; max-height: none; }
+.faq-item__resposta-inner {
+  min-height: 0;
+  overflow: hidden;
+  padding-bottom: 0;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity .45s var(--fx-ease-suave), transform .45s var(--fx-ease-suave);
+}
+/* O respiro de baixo fica dentro do bloco recortado, para fechar até zero. */
+.faq-item__resposta-inner::after { content: ''; display: block; height: 18px; }
+.faq-item.open .faq-item__resposta-inner {
+  opacity: 1;
+  transform: none;
+  transition-delay: .08s;
+}
+.faq-item { transition: box-shadow .5s var(--fx-ease-suave), border-color .5s var(--fx-ease-suave); }
+.faq-item.open { border-color: var(--border); box-shadow: 0 14px 30px -22px rgba(58, 46, 31, .35); }
+.faq-item__icone { transition: transform .45s var(--fx-ease-suave); }

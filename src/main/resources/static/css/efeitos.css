@@ -125,3 +125,49 @@ body::after {
   .hero__bg::before, .hero__bg::after,
   .js .hero__title em::after, .js .hero__figure img { animation: none !important; }
 }
+
+/* ── BOTÕES ───────────────────────────────────────────────────
+   "Conhecer os pijamas" / "Falar no WhatsApp" / "Quero esse":
+   leve gradiente nos tons da própria paleta e um brilho que passa
+   uma vez no hover. A troca de cor do hover vira um fade (opacity). ── */
+.btn-gold, .btn-outline, .btn-whatsapp {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.btn-gold,
+.btn-gold:hover { background-image: linear-gradient(135deg, var(--ink) 0%, var(--fx-ink-claro) 100%); }
+.btn-gold::before {
+  content: '';
+  position: absolute; inset: 0;
+  z-index: -1;
+  background: linear-gradient(135deg, var(--fx-gold-text-fundo) 0%, var(--gold-text) 100%);
+  opacity: 0;
+  transition: opacity .5s var(--fx-ease-suave);
+}
+.btn-gold:hover::before { opacity: 1; }
+
+.btn-whatsapp,
+.btn-whatsapp:hover { background-image: linear-gradient(135deg, var(--wpp-text-bg) 0%, var(--wpp-text-bg-hover) 100%); }
+
+@keyframes fxBrilho {
+  0%   { opacity: 0; transform: translateX(0) skewX(-14deg); }
+  20%  { opacity: 1; }
+  100% { opacity: 0; transform: translateX(420%) skewX(-14deg); }
+}
+.btn-gold::after, .btn-outline::after, .btn-whatsapp::after {
+  content: '';
+  position: absolute; top: 0; bottom: 0; left: -45%;
+  width: 40%;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(255, 248, 240, 0), rgba(255, 248, 240, .28), rgba(255, 248, 240, 0));
+  opacity: 0;
+}
+.btn-gold:hover::after, .btn-outline:hover::after, .btn-whatsapp:hover::after {
+  animation: fxBrilho 1.4s var(--fx-ease-suave) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-gold:hover::after, .btn-outline:hover::after, .btn-whatsapp:hover::after { animation: none !important; }
+}

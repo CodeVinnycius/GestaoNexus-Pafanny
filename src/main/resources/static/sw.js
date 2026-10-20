@@ -3,8 +3,12 @@
  * Estratégia: Network First para API, Cache First para assets estáticos
  */
 
-const CACHE_NAME    = 'estoque-v6';
-const CACHE_STATIC  = 'estoque-static-v6';
+const CACHE_NAME    = 'estoque-v7';
+const CACHE_STATIC  = 'estoque-static-v7';
+
+// A loja pública não passa pelo cache: quem abriu o sistema no mesmo navegador
+// via a versão antiga da loja depois de cada publicação.
+const LOJA_SEM_CACHE = /^\/($|loja\.html|css\/(loja|efeitos)\.css|js\/(loja|efeitos)\.js|img\/|uploads\/)/;
 
 // Assets que ficam em cache para funcionar offline
 const ASSETS_STATIC = [
@@ -44,6 +48,8 @@ self.addEventListener('activate', event => {
 // ── FETCH: estratégia híbrida ─────────────────────────────────────────────────
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
+
+  if (url.origin === self.location.origin && LOJA_SEM_CACHE.test(url.pathname)) return;
 
   // API calls: Network First (sempre tenta a rede, sem cache)
   if (url.pathname.startsWith('/api/')) {

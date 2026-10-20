@@ -3,6 +3,7 @@
  * Vitrine da marca: catálogo real (consumido de /api/loja), sem carrinho —
  * cada peça direciona direto para o WhatsApp. "O amor mora em cada detalhe."
  */
+window.lojaPronta = true; // avisa o <head> que o script chegou (senão ele desliga as animações de entrada)
 const $  = id => document.getElementById(id);
 const API = '/api/loja';
 const FAV_KEY = 'pafanny_favoritos';
@@ -82,14 +83,7 @@ async function iniciar() {
       iniciar();
     };
   }
-  if (!iniciado) {
-    iniciado = true;
-    renderFaq();
-    ativarMenuMobile();
-    ativarReveal();
-  }
 }
-let iniciado = false;
 
 function ordenarPorCategoria(lista) {
   const peso = c => { const i = ORDEM_CATEGORIAS.indexOf(c); return i === -1 ? 999 : i; };
@@ -694,4 +688,8 @@ function toast(msg) {
   clearTimeout(tt); tt = setTimeout(() => el.classList.remove('show'), 2800);
 }
 
+// O que não depende do catálogo entra na hora — o hero e o FAQ não esperam a API responder.
+renderFaq();
+ativarMenuMobile();
+ativarReveal();
 iniciar();

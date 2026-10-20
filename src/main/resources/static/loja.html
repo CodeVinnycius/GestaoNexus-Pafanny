@@ -51,8 +51,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Jost:wght@400;500;600&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/css/loja.css"/>
-<!-- Animações de entrada só quando o JS roda: sem JS, nada fica invisível -->
-<script>document.documentElement.classList.add('js');</script>
+<!-- Animações de entrada só quando o JS roda: sem JS, nada fica invisível.
+     Se o loja.js não carregar em 4s (bloqueado, rede ruim), a classe sai e tudo aparece. -->
+<script>
+document.documentElement.classList.add('js');
+setTimeout(function () { if (!window.lojaPronta) document.documentElement.classList.remove('js'); }, 4000);
+</script>
 <link rel="icon" href="/icons/pafanny.svg" type="image/svg+xml"/>
 </head>
 <body>

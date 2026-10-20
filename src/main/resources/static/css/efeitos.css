@@ -239,3 +239,61 @@ body::after {
 @media (forced-colors: active) {
   .reveal > * { opacity: 1 !important; animation: none !important; }
 }
+
+/* ── CATÁLOGO ─────────────────────────────────────────────────
+   Skeleton enquanto as peças carregam, elevação e zoom mais lentos,
+   troca suave para a segunda foto (efeitos.js) e entrada em sequência. ── */
+.fx-skel {
+  background: var(--card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.fx-skel__img {
+  position: relative;
+  aspect-ratio: 3/4;
+  overflow: hidden;
+  background: var(--cream-2);
+}
+.fx-skel__img::after {
+  content: '';
+  position: absolute; inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, rgba(255, 248, 240, 0), rgba(255, 248, 240, .75), rgba(255, 248, 240, 0));
+  animation: fxSkel 1.8s ease-in-out infinite;
+}
+@keyframes fxSkel { to { transform: translateX(100%); } }
+.fx-skel__linha {
+  height: 11px;
+  margin: 15px 14px 0;
+  border-radius: 99px;
+  background: var(--cream-2);
+}
+.fx-skel__linha--curta { width: 45%; margin-bottom: 18px; }
+
+.produto-card {
+  transition: box-shadow .6s var(--fx-ease-suave), transform .6s var(--fx-ease-suave);
+}
+.produto-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 22px 44px -22px rgba(58, 46, 31, .38);
+}
+.produto-card__img img { transition: transform 1.2s var(--fx-ease-suave), opacity .7s var(--fx-ease-suave); }
+.produto-card:hover .produto-card__img img { transform: scale(1.04); }
+
+.fx-foto2 {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: 0;
+}
+.produto-card:hover .fx-foto2.carregada { opacity: 1; }
+
+.fx-entra {
+  animation: fxSobe .9s var(--fx-ease-suave) both;
+  animation-delay: calc(var(--fx-i, 0) * 70ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-skel__img::after, .fx-entra { animation: none !important; }
+}

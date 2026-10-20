@@ -299,7 +299,7 @@ function renderGrid(anunciar = false) {
     return `
     <article class="produto-card" data-id="${p.id}">
       <div class="produto-card__img">
-        ${p.imagens && p.imagens.length ? `<img src="${esc(p.imagens[0])}" alt="Pijama ${escAttr(p.nome)}" loading="lazy" decoding="async"/>` : '<span class="sem-foto" aria-hidden="true">♡</span>'}
+        ${p.imagens && p.imagens.length ? `<img src="${esc(p.imagens[0])}" alt="Pijama ${escAttr(p.nome)}" loading="lazy" decoding="async"${p.imagens[1] ? ` data-foto2="${esc(p.imagens[1])}"` : ''}/>` : '<span class="sem-foto" aria-hidden="true">♡</span>'}
         <button type="button" class="produto-card__fav ${fav ? 'ativo' : ''}" data-id="${p.id}" aria-label="Favoritar ${escAttr(p.nome)}" aria-pressed="${fav}">
           <svg viewBox="0 0 24 24" fill="${fav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 21s-7.5-4.6-10-9.3C.4 8.2 2 4.8 5.4 4.1c2-.4 4 .5 6.6 3 2.6-2.5 4.6-3.4 6.6-3C21.9 4.8 23.5 8.2 22 11.7 19.5 16.4 12 21 12 21z"/></svg>
         </button>

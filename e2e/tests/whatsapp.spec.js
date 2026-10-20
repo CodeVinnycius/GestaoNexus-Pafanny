@@ -68,3 +68,32 @@ test('"Quero esse" e o botão do card em TODAS as peças', async ({ page, reques
   expect(abertos.length).toBe(produtos.length * 2);
   expect(abertos).toEqual(esperados);
 });
+
+test.describe('sem JavaScript', () => {
+  test.use({ javaScriptEnabled: false });
+
+  test('peças principais em HTML com o mesmo link de WhatsApp', async ({ page, request }) => {
+    const config = await (await request.get('/api/loja/config')).json();
+    const produtos = await (await request.get('/api/loja/produtos')).json();
+    const numero = config.whatsapp.replace(/\D/g, '');
+    await page.goto('/');
+    const cards = page.locator('#grid-produtos .produto-card');
+    await expect(cards).toHaveCount(8);
+    await expect(cards.first()).toBeVisible();
+    await expect(page.locator('#grid-produtos .loja-msg')).toBeHidden();
+
+    const porNome = Object.fromEntries(produtos.map(p => [p.nome, p]));
+    for (let i = 0; i < 8; i++) {
+      const nome = await cards.nth(i).locator('.produto-card__nome').textContent();
+      const p = porNome[nome];
+      expect(p, `peça "${nome}" existe na API`).toBeTruthy();
+      await expect(cards.nth(i).locator('.produto-card__wpp')).toHaveAttribute('href',
+        `https://wa.me/${numero}?text=${encodeURIComponent(mensagemEsperada(p, config.nome))}`);
+    }
+    const generica = `https://wa.me/${numero}?text=${encodeURIComponent(`Olá! 💛 Gostaria de saber mais sobre os pijamas da ${config.nome}.`)}`;
+    for (const id of ['cta-header-whatsapp', 'cta-hero-whatsapp', 'fab-whatsapp', 'footer-whatsapp']) {
+      await expect(page.locator(`#${id}`)).toHaveAttribute('href', generica);
+    }
+    await expect(page.locator('#link-instagram')).toHaveAttribute('href', `https://instagram.com/${config.instagram}`);
+  });
+});

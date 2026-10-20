@@ -933,3 +933,8 @@ main, section[id] { scroll-margin-top: 84px; }
   .chip.active, .tamanho-opcao.selecionado { outline: 2px solid Highlight; }
   .reveal { opacity: 1 !important; transform: none !important; }
 }
+/* ── SEM JAVASCRIPT ─────────────────────────────────────────
+   O servidor manda as peças principais dentro de <noscript> no grid
+   (LojaPaginaController); o "Carregando peças…" não faz sentido aí. ── */
+#grid-produtos > noscript { display: contents; }
+html:not(.js) #grid-produtos > .loja-msg { display: none; }

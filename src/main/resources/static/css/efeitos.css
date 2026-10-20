@@ -641,3 +641,116 @@ html.lenis, html.lenis body { height: auto; }
   .js .section__head .fx-palavra { opacity: 1 !important; animation: none !important; }
   .js .passos.fx-com-linha::before { transform: none !important; animation: none !important; }
 }
+
+/* ── HERO RICO ────────────────────────────────────────────────
+   Foto em moldura de arco (a mesma forma do fundo das fotos do catálogo),
+   um arco fino dourado deslocado atrás dela, brilhos que cintilam devagar,
+   um coraçãozinho de traço e o indicador "role para baixo".
+   Os enfeites vêm com [hidden] no HTML: sem este arquivo, nada aparece. ── */
+.fx-moldura[hidden], .fx-brilho[hidden], .fx-coracao-traco[hidden] { display: block; }
+.fx-rolar[hidden] { display: none; }
+
+.hero__copy { position: relative; }
+.fx-hero-foto { position: relative; isolation: isolate; }
+/* O fundo do hero termina em degradê no off-white da seção seguinte (sem corte seco). */
+.hero__grid { z-index: 1; }
+.hero::after {
+  content: '';
+  position: absolute; left: 0; right: 0; bottom: 0;
+  height: 160px;
+  background: linear-gradient(180deg, rgba(255, 248, 240, 0), var(--offwhite));
+  pointer-events: none;
+}
+.hero__figure {
+  border-radius: 50% 50% var(--radius-lg) var(--radius-lg) / 37.5% 37.5% var(--radius-lg) var(--radius-lg);
+  box-shadow: 0 30px 60px -30px rgba(58, 46, 31, .42), 0 0 0 6px rgba(255, 248, 240, .7);
+}
+.fx-moldura {
+  position: absolute; inset: 0;
+  z-index: -1;
+  border: 1.5px solid rgba(212, 175, 55, .55);
+  border-radius: 50% 50% var(--radius-lg) var(--radius-lg) / 37.5% 37.5% var(--radius-lg) var(--radius-lg);
+  transform: translate(-16px, 16px);
+  pointer-events: none;
+}
+
+@keyframes fxCintila {
+  0%, 100% { opacity: .25; scale: .7; }
+  50%      { opacity: 1;   scale: 1; }
+}
+.fx-brilho {
+  position: absolute;
+  left: var(--fx-x, 0); top: var(--fx-y, 0);
+  z-index: 2;
+  width: var(--fx-t, 16px); height: var(--fx-t, 16px);
+  color: var(--gold);
+  pointer-events: none;
+  animation: fxCintila 6.5s ease-in-out var(--fx-d, 0s) infinite;
+}
+.fx-brilho svg { display: block; width: 100%; height: 100%; }
+.fx-brilho--texto { left: 14%; top: -14px; color: var(--gold-soft); }
+.fx-coracao-traco {
+  position: absolute;
+  left: -14px; bottom: 18%;
+  z-index: 2;
+  width: 40px; height: 40px;
+  color: var(--gold-soft);
+  rotate: -14deg;
+  pointer-events: none;
+}
+/* Nas telas com animation-timeline os brilhos também fazem parallax. */
+.js.fx-sd .fx-brilho {
+  animation: fxCintila 6.5s ease-in-out var(--fx-d, 0s) infinite, fxParallax linear both;
+  animation-timeline: auto, view();
+  animation-range: normal, cover;
+}
+
+@media (min-width: 900px) {
+  .hero {
+    min-height: min(calc(100dvh - 74px), 980px);
+    display: flex; flex-direction: column; justify-content: center;
+    padding-bottom: 120px;
+  }
+  .hero__grid { width: 100%; }
+  .fx-hero-foto { width: 100%; max-width: 480px; margin-left: auto; }
+  .fx-hero-foto .hero__figure { max-width: none; margin-left: 0; }
+  .fx-brilho--texto { left: -18px; top: -16px; }
+  .fx-coracao-traco { left: -46px; width: 48px; height: 48px; }
+
+  /* "Role para baixo": só onde o hero cabe inteiro na tela. */
+  .fx-rolar[hidden] { display: flex; }
+  .fx-rolar {
+    position: absolute; left: 50%; bottom: 26px;
+    translate: -50% 0;
+    width: var(--touch-icon); height: var(--touch-icon);
+    align-items: center; justify-content: center;
+    border-radius: 99px;
+  }
+  .fx-rolar__trilho {
+    display: flex; justify-content: center;
+    width: 22px; height: 34px;
+    padding-top: 6px;
+    border: 1.5px solid var(--gold-text);
+    border-radius: 99px;
+    opacity: .7;
+    transition: opacity var(--dur);
+  }
+  .fx-rolar:hover .fx-rolar__trilho { opacity: 1; }
+  .fx-rolar__ponto {
+    width: 3px; height: 7px;
+    border-radius: 3px;
+    background: var(--gold-text);
+    animation: fxRolar 2.6s ease-in-out infinite;
+  }
+}
+@keyframes fxRolar {
+  0%   { translate: 0 0; opacity: 0; }
+  25%  { opacity: 1; }
+  70%  { translate: 0 11px; opacity: 0; }
+  100% { translate: 0 11px; opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-brilho, .js.fx-sd .fx-brilho, .fx-rolar__ponto { animation: none !important; }
+  .fx-brilho { opacity: .7; }
+}

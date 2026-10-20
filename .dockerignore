@@ -13,3 +13,4 @@ data/
 *.bat
 *.ps1
 docs/
+e2e/

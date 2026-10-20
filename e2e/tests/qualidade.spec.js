@@ -66,7 +66,7 @@ test.describe('JS bloqueado ou API travada', () => {
     .filter(el => getComputedStyle(el).opacity !== '1').map(el => el.className));
 
   test('loja.js bloqueado: conteúdo aparece mesmo assim', async ({ page }) => {
-    await page.route('**/js/loja.js', r => r.abort());
+    await page.route(/\/js\/loja\.js/, r => r.abort());
     await page.goto('/');
     await page.waitForTimeout(5000);
     expect(await semNadaInvisivel(page)).toEqual([]);
@@ -120,4 +120,23 @@ test('nenhum nome que bloqueadores de anúncio costumam barrar', async ({ page }
     .flatMap(el => [el.id, ...el.classList]).filter(Boolean));
   expect(nomes.filter(n => proibido.test(n))).toEqual([]);
   expect(urls.filter(u => !u.startsWith('/uploads/') && proibido.test(u))).toEqual([]);
+});
+
+test('todos os arquivos da página respondem 200; os da loja com cache e gzip', async ({ page, request }) => {
+  const falhas = [];
+  page.on('response', r => { if (r.status() >= 400) falhas.push(`${r.status()} ${r.url()}`); });
+  await page.goto('/');
+  await page.waitForSelector('.produto-card');
+  await page.waitForLoadState('networkidle');
+  expect(falhas).toEqual([]);
+
+  const html = await (await request.get('/')).text();
+  const locais = [...html.matchAll(/(?:href|src)="(\/(?:css|js)\/[^"]+)"/g)].map(m => m[1]);
+  expect(locais.length).toBeGreaterThan(3);
+  for (const url of locais) {
+    expect(url, 'link versionado').toMatch(/\?v=[0-9a-f]{10}$/);
+    const r = await request.get(url, { headers: { 'Accept-Encoding': 'gzip' } });
+    expect(r.status(), url).toBe(200);
+    expect(r.headers()['cache-control'], url).toContain('max-age=31536000');
+  }
 });

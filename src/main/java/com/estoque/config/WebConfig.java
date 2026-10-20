@@ -2,6 +2,7 @@ package com.estoque.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.CacheControl;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -9,6 +10,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.TimeUnit;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
@@ -29,7 +31,25 @@ public class WebConfig implements WebMvcConfigurer {
         } catch (IOException e) {
             throw new UncheckedIOException("Falha ao criar diretório de uploads.", e);
         }
+        // Fotos de produto têm nome único (UUID) e nunca mudam: podem ficar 30 dias no navegador.
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations(dir.toUri().toString());
+                .addResourceLocations(dir.toUri().toString())
+                .setCacheControl(CacheControl.maxAge(30, TimeUnit.DAYS).cachePublic());
+
+        // Arquivos da loja: o LojaPaginaController acrescenta ?v=<hash do conteúdo> em cada link,
+        // então o navegador pode guardá-los por 1 ano e mesmo assim recebe a versão nova a cada deploy.
+        // (Os arquivos do sistema — style.css, script.js — seguem sem cache, como antes.)
+        // Os padrões precisam de curinga: num padrão exato o Spring não acha o arquivo (404).
+        CacheControl umAno = CacheControl.maxAge(365, TimeUnit.DAYS).cachePublic();
+        registry.addResourceHandler("/css/loja*.css", "/css/efeitos*.css")
+                .addResourceLocations("classpath:/static/css/").setCacheControl(umAno);
+        registry.addResourceHandler("/js/loja*.js", "/js/efeitos*.js")
+                .addResourceLocations("classpath:/static/js/").setCacheControl(umAno);
+        registry.addResourceHandler("/js/vendor/**")
+                .addResourceLocations("classpath:/static/js/vendor/").setCacheControl(umAno);
+        registry.addResourceHandler("/fonts/**")
+                .addResourceLocations("classpath:/static/fonts/").setCacheControl(umAno);
+        registry.addResourceHandler("/img/**")
+                .addResourceLocations("classpath:/static/img/").setCacheControl(umAno);
     }
 }

@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.util.HtmlUtils;
@@ -62,7 +63,35 @@ public class LojaPaginaController {
 
     public LojaPaginaController(LojaService service) throws IOException {
         this.service = service;
-        this.modelo = new ClassPathResource("static/loja.html").getContentAsString(StandardCharsets.UTF_8);
+        this.modelo = versionarArquivos(new ClassPathResource("static/loja.html").getContentAsString(StandardCharsets.UTF_8));
+    }
+
+    private static final Pattern ARQUIVO_LOCAL =
+        Pattern.compile("(?<=[\"\\s,])/(?:css|js|img|fonts)/[A-Za-z0-9._/-]+\\.(?:css|js|jpg|jpeg|png|webp|avif|svg|woff2)(?=[\"\\s,])");
+
+    /**
+     * Acrescenta ?v=&lt;hash do conteúdo&gt; em cada CSS/JS/imagem/fonte local da página. Esses arquivos
+     * são servidos com cache de 1 ano (WebConfig): quando o conteúdo muda, o link muda junto.
+     */
+    private static String versionarArquivos(String html) {
+        Matcher m = ARQUIVO_LOCAL.matcher(html);
+        StringBuilder s = new StringBuilder();
+        while (m.find()) {
+            String caminho = m.group();
+            m.appendReplacement(s, Matcher.quoteReplacement(caminho + versao(caminho)));
+        }
+        m.appendTail(s);
+        return s.toString();
+    }
+
+    private static String versao(String caminho) {
+        try {
+            byte[] conteudo = new ClassPathResource("static" + caminho).getContentAsByteArray();
+            return "?v=" + DigestUtils.md5DigestAsHex(conteudo).substring(0, 10);
+        } catch (IOException e) {
+            log.warn("Sem versão para {} (arquivo não encontrado)", caminho);
+            return "";
+        }
     }
 
     @GetMapping(value = {"/", "/loja.html"}, produces = MediaType.TEXT_HTML_VALUE)

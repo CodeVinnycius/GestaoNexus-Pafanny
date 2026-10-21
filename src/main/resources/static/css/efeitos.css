@@ -1098,3 +1098,94 @@ html.lenis, html.lenis body { height: auto; }
   .btn-whatsapp.fx-pulsando { animation: none !important; }
   .loja-overlay, .loja-sheet { transition: none; }
 }
+
+/* ── DEPOIMENTOS ──────────────────────────────────────────────
+   Carrossel com arrastar (scroll-snap), setas, pontos e troca automática
+   com pausa (js/secoes.js). Os modelos de preenchimento ficam marcados com
+   borda tracejada e o selo "Exemplo" — e só aparecem no teste local. ── */
+.fx-depoimentos__carrossel { max-width: var(--container-max); margin: 0 auto; }
+.fx-depoimentos__trilho {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 100%;
+  gap: 18px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding: 6px 2px 10px;
+  -webkit-overflow-scrolling: touch;
+}
+.fx-depoimentos__trilho::-webkit-scrollbar { display: none; }
+@media (min-width: 700px) { .fx-depoimentos__trilho { grid-auto-columns: calc((100% - 18px) / 2); } }
+@media (min-width: 1100px) { .fx-depoimentos__trilho { grid-auto-columns: calc((100% - 36px) / 3); } }
+.fx-depoimento {
+  position: relative;
+  scroll-snap-align: start;
+  margin: 0;
+  min-width: 0;
+  padding: 44px 28px 26px;
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  border: 1px solid var(--border-soft);
+  box-shadow: 0 20px 40px -30px rgba(58, 46, 31, .4);
+  display: flex; flex-direction: column; gap: 18px;
+}
+.fx-depoimento::before {
+  content: '\201C';
+  position: absolute; left: 22px; top: 2px;
+  font-family: var(--serif);
+  font-size: 4.2rem; line-height: 1;
+  color: var(--gold-soft);
+}
+.fx-depoimento__texto {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(1rem, .95rem + .3vw, 1.15rem);
+  line-height: 1.65;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.fx-depoimento figcaption { margin-top: auto; display: flex; flex-direction: column; gap: 2px; }
+.fx-depoimento__nome { font-weight: 600; font-size: .9rem; color: var(--ink); }
+.fx-depoimento__info { font-size: .78rem; color: var(--ink-mist); }
+.fx-depoimento--exemplo { border: 1.5px dashed var(--gold); background: rgba(255, 255, 255, .7); }
+.fx-depoimento--exemplo::after {
+  content: 'Exemplo';
+  position: absolute; right: 16px; top: 16px;
+  padding: 3px 10px;
+  border-radius: 99px;
+  background: var(--gold-mist);
+  color: var(--gold-text);
+  font-size: .7rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+}
+
+.fx-depoimentos__controles {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  margin-top: 22px;
+}
+.fx-depoimentos__botao {
+  display: flex; align-items: center; justify-content: center;
+  width: var(--touch-icon); height: var(--touch-icon);
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color var(--dur), translate var(--dur);
+}
+.fx-depoimentos__botao:hover { border-color: var(--gold); translate: 0 -1px; }
+.fx-depoimentos__botao svg { width: 18px; height: 18px; }
+.fx-depoimentos__botao .fx-icone-tocar, .fx-pausado .fx-icone-pausa { display: none; }
+.fx-pausado .fx-icone-tocar { display: inline; }
+.fx-depoimentos__pontos { display: flex; gap: 7px; padding: 0 6px; }
+.fx-depoimentos__pontos span {
+  width: 7px; height: 7px; border-radius: 99px;
+  background: var(--border);
+  transition: width .45s var(--fx-ease-suave), background .45s;
+}
+.fx-depoimentos__pontos span.ativo { width: 20px; background: var(--gold-text); }
+/* Quando todos cabem na tela não há o que passar: os controles somem. */
+.fx-sem-rolagem .fx-depoimentos__controles { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  [data-acao="pausar"] { display: none; }
+}

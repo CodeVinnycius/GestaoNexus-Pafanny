@@ -267,6 +267,54 @@ setTimeout(function () { if (!window.lojaPronta) document.documentElement.classL
     </div>
   </section>
 
+  <!-- ══ DEPOIMENTOS ════════════════════════════════════
+       PRONTA PARA DEPOIMENTOS REAIS — nada aqui é inventado.
+       Enquanto houver só os exemplos, a seção fica escondida no site (hidden) e
+       aparece apenas no teste local (localhost, js/secoes.js).
+       Para publicar depoimentos de verdade:
+         1. troque o texto de cada <blockquote> e os dados do <figcaption>
+            (use só depoimentos reais, com autorização da cliente);
+         2. tire a classe "fx-depoimento--exemplo" de cada <figure>;
+         3. apague os atributos  hidden  e  data-somente-local  da <section> abaixo.
+       Pode ter quantos <figure> quiser (o carrossel se ajusta); atualize o "1 de N". -->
+  <section class="section fx-depoimentos" id="depoimentos" aria-labelledby="depoimentos-title" hidden data-somente-local>
+    <div class="section__head reveal">
+      <span class="kicker">Quem já usa</span>
+      <h2 class="section__title" id="depoimentos-title">O carinho de quem veste PAFANNY</h2>
+    </div>
+    <div class="fx-depoimentos__carrossel" role="region" aria-roledescription="carrossel" aria-label="Depoimentos de clientes">
+      <div class="fx-depoimentos__trilho" tabindex="0">
+        <figure class="fx-depoimento fx-depoimento--exemplo" role="group" aria-roledescription="slide" aria-label="1 de 3">
+          <blockquote class="fx-depoimento__texto">[EXEMPLO 1 — troque por um depoimento real de cliente, com a autorização dela.]</blockquote>
+          <figcaption>
+            <span class="fx-depoimento__nome">[Nome da cliente]</span>
+            <span class="fx-depoimento__info">[Cidade · pijama que comprou]</span>
+          </figcaption>
+        </figure>
+        <figure class="fx-depoimento fx-depoimento--exemplo" role="group" aria-roledescription="slide" aria-label="2 de 3">
+          <blockquote class="fx-depoimento__texto">[EXEMPLO 2 — troque por um depoimento real de cliente, com a autorização dela.]</blockquote>
+          <figcaption>
+            <span class="fx-depoimento__nome">[Nome da cliente]</span>
+            <span class="fx-depoimento__info">[Cidade · pijama que comprou]</span>
+          </figcaption>
+        </figure>
+        <figure class="fx-depoimento fx-depoimento--exemplo" role="group" aria-roledescription="slide" aria-label="3 de 3">
+          <blockquote class="fx-depoimento__texto">[EXEMPLO 3 — troque por um depoimento real de cliente, com a autorização dela.]</blockquote>
+          <figcaption>
+            <span class="fx-depoimento__nome">[Nome da cliente]</span>
+            <span class="fx-depoimento__info">[Cidade · pijama que comprou]</span>
+          </figcaption>
+        </figure>
+      </div>
+      <div class="fx-depoimentos__controles">
+        <button type="button" class="fx-depoimentos__botao" data-acao="anterior" aria-label="Depoimento anterior"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14.5 6 8.5 12l6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="fx-depoimentos__pontos" aria-hidden="true"></div>
+        <button type="button" class="fx-depoimentos__botao" data-acao="pausar" aria-pressed="false" aria-label="Pausar a troca automática"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="fx-icone-pausa" d="M9 6v12M15 6v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/><path class="fx-icone-tocar" d="M8 6.5v11l9-5.5-9-5.5Z" fill="currentColor"/></svg></button>
+        <button type="button" class="fx-depoimentos__botao" data-acao="proximo" aria-label="Próximo depoimento"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m9.5 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
+    </div>
+  </section>
+
   <!-- ══ FAQ ═════════════════════════════════════════════ -->
   <section class="section" id="faq" aria-labelledby="faq-title">
     <div class="section__head reveal">

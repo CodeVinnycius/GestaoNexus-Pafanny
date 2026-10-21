@@ -142,3 +142,15 @@ test('todos os arquivos da página respondem 200; os da loja com cache e gzip', 
     expect(r.headers()['cache-control'], url).toContain('max-age=31536000');
   }
 });
+
+test('depoimentos de EXEMPLO nunca aparecem fora do teste local', async ({ page, baseURL }) => {
+  // Simula o site publicado: o mesmo HTML servido com outro nome de host.
+  await page.route('http://pafanny-teste.local/**', async r => {
+    const res = await r.fetch({ url: r.request().url().replace('http://pafanny-teste.local', baseURL) });
+    await r.fulfill({ response: res });
+  });
+  await page.goto('http://pafanny-teste.local/');
+  await page.waitForSelector('.produto-card');
+  await expect(page.locator('.fx-depoimento--exemplo').first()).toBeHidden();
+  await expect(page.locator('#depoimentos')).toBeHidden();
+});

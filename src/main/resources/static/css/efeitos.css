@@ -698,6 +698,8 @@ html.lenis, html.lenis body { height: auto; }
   rotate: -14deg;
   pointer-events: none;
 }
+/* O SVG vai dentro de um <span hidden>: em <svg> o atributo hidden não esconde nada. */
+.fx-coracao-traco svg { display: block; width: 100%; height: 100%; }
 /* Nas telas com animation-timeline os brilhos também fazem parallax. */
 .js.fx-sd .fx-brilho {
   animation: fxCintila 6.5s ease-in-out var(--fx-d, 0s) infinite, fxParallax linear both;

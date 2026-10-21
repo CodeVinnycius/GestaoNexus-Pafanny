@@ -31,7 +31,8 @@ test.describe('sem overflow horizontal', () => {
       expect(medidas.scroll).toBeLessThanOrEqual(medidas.client);
 
       // O modal de detalhe também não pode vazar.
-      await page.locator('.produto-card__link').first().click();
+      // dispatchEvent: o clique não espera as animações de rolagem pararem (sob carga isso demora)
+      await page.locator('.produto-card__link').first().dispatchEvent('click');
       await page.waitForSelector('#btn-quero-esse');
       const modal = await page.evaluate(() => {
         const s = document.getElementById('sheet-produto');
@@ -153,4 +154,19 @@ test('depoimentos de EXEMPLO nunca aparecem fora do teste local', async ({ page,
   await page.waitForSelector('.produto-card');
   await expect(page.locator('.fx-depoimento--exemplo').first()).toBeHidden();
   await expect(page.locator('#depoimentos')).toBeHidden();
+});
+
+test('sem os arquivos de efeitos, a página volta ao visual original (nada sobra)', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.route(/\/(css\/efeitos\.css|js\/(efeitos|rolagem|secoes)\.js)/, r => r.abort());
+  await page.goto('/');
+  await page.waitForSelector('.produto-card');
+  const sobrando = await page.evaluate(() => [...document.querySelectorAll('[class*="fx-"]')]
+    .filter(el => el.getClientRects().length && el.getBoundingClientRect().width > 0)
+    .map(el => String(el.className.baseVal ?? el.className)));
+  // O invólucro da foto do hero é um <div> neutro: sem o CSS de efeitos ele não muda nada.
+  expect(sobrando.filter(c => !/^fx-hero-foto$/.test(c))).toEqual([]);
+  const foto = await page.locator('#hero-img').boundingBox();
+  const titulo = await page.locator('#hero-title').boundingBox();
+  expect(foto.y, 'foto ao lado do título, como no original').toBeLessThan(titulo.y + titulo.height);
 });

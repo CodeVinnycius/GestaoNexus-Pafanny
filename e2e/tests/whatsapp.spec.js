@@ -39,7 +39,7 @@ test('links gerais de WhatsApp e Instagram', async ({ page, request }) => {
 });
 
 test('"Quero esse" e o botão do card em TODAS as peças', async ({ page, request }) => {
-  test.setTimeout(180_000);
+  test.setTimeout(420_000); // 96 peças x 2 cliques; com vários navegadores em paralelo leva mais
   const config = await (await request.get('/api/loja/config')).json();
   const produtos = await (await request.get('/api/loja/produtos')).json();
   const numero = config.whatsapp.replace(/\D/g, '');

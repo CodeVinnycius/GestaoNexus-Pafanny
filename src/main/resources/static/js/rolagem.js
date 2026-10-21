@@ -49,13 +49,14 @@
   (fab || document.body.lastElementChild).before(topo);
   topo.addEventListener('click', () => irPara(0, header && header.querySelector('.brand')));
 
-  let ultimoY = scrollY;
+  let ultimoY = null; // lido no primeiro quadro (ler scrollY já forçaria o layout da página)
   let agendado = false;
   let subindo = false;
   const telaEstreita = matchMedia('(max-width: 699px)');
   function aoRolar() {
     agendado = false;
     const y = scrollY;
+    if (ultimoY === null) ultimoY = y;
     const menuAberto = botaoMenu && botaoMenu.getAttribute('aria-expanded') === 'true';
     const focoNoHeader = header && header.contains(document.activeElement);
     if (header) {
@@ -73,7 +74,7 @@
   }
   addEventListener('scroll', () => { if (!agendado) { agendado = true; requestAnimationFrame(aoRolar); } }, { passive: true });
   if (header) header.addEventListener('focusin', () => header.classList.remove('fx-escondido'));
-  aoRolar();
+  // Sem chamada inicial: ler scrollY no carregamento forçaria o layout; o primeiro scroll ajusta tudo.
 
   // ══════════════════════════════════════════════════════════════════════════
   //  SEÇÃO ATIVA NO MENU E TOM DE FUNDO POR SEÇÃO
@@ -147,7 +148,11 @@
     passos.classList.add('fx-com-linha');
   }
   if (passos) {
-    medirLinhaDosPassos();
+    // Mede quando a seção se aproxima da tela (o layout já está pronto, sem forçar um cálculo extra).
+    if ('IntersectionObserver' in window) {
+      const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { medirLinhaDosPassos(); obs.disconnect(); } }, { rootMargin: '600px 0px' });
+      obs.observe(passos);
+    } else requestAnimationFrame(medirLinhaDosPassos);
     let espera;
     addEventListener('resize', () => { clearTimeout(espera); espera = setTimeout(medirLinhaDosPassos, 150); });
     if (document.fonts) document.fonts.ready.then(medirLinhaDosPassos);

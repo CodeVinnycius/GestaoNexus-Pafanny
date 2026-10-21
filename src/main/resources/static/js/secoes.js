@@ -38,7 +38,7 @@
     }
     trilho.addEventListener('scroll', () => requestAnimationFrame(marcarPonto), { passive: true });
     addEventListener('resize', marcarPonto);
-    marcarPonto();
+    requestAnimationFrame(marcarPonto);
 
     carrossel.querySelector('[data-acao="anterior"]').addEventListener('click', () => irPara(atual() - 1));
     carrossel.querySelector('[data-acao="proximo"]').addEventListener('click', () => irPara(atual() + 1));

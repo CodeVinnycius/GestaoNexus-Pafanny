@@ -146,7 +146,8 @@
     let agendado = false;
     const atualizar = () => { agendado = false; header.classList.toggle('fx-rolou', scrollY > 10); };
     addEventListener('scroll', () => { if (!agendado) { agendado = true; requestAnimationFrame(atualizar); } }, { passive: true });
-    atualizar();
+    // Sem leitura inicial de scrollY (forçaria o layout da página no carregamento): se a página
+    // abrir já rolada, o navegador dispara um evento de rolagem e o header se ajusta.
   }
 
   const fab = document.getElementById('fab-whatsapp');

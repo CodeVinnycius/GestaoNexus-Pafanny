@@ -177,7 +177,7 @@ function renderDestaque() {
     // <button>: funciona com teclado (Tab + Enter/Espaço) e leitor de tela, não só com toque/mouse.
     return `
       <div role="listitem">
-        <button type="button" class="destaque-card" data-cat="${escAttr(cat)}" aria-label="Ver pijamas da linha ${escAttr(cat)}">
+        <button type="button" class="destaque-card" data-cat="${escAttr(cat)}" aria-label="${escAttr(cat)}, ${item.preco != null ? 'a partir de ' + moeda(item.preco) : 'Consulte o valor'}: ver os pijamas desta linha">
           ${item.imagens && item.imagens.length ? `<img ${fotoResponsiva(item.imagens[0], '(min-width: 700px) 25vw, 50vw')} alt="" loading="lazy" decoding="async"/>` : ''}
           <span class="destaque-card__label">
             <span class="destaque-card__nome">${esc(cat)}</span>

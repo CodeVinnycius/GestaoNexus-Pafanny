@@ -1189,3 +1189,59 @@ html.lenis, html.lenis body { height: auto; }
 @media (prefers-reduced-motion: reduce) {
   [data-acao="pausar"] { display: none; }
 }
+
+/* ── GALERIA ESTILO FEED (@usepafanny) ───────────────────────
+   Fotos quadradas do próprio catálogo, levando ao Instagram. Hover com véu
+   suave e o ícone; em cascata com a rolagem onde há animation-timeline. ── */
+.fx-galeria {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  max-width: 980px;
+  margin: 34px auto 0;
+}
+@media (min-width: 800px) { .fx-galeria { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; } }
+.fx-galeria li { min-width: 0; }
+.fx-galeria a {
+  position: relative;
+  display: block;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: var(--cream-2);
+  box-shadow: 0 14px 28px -22px rgba(58, 46, 31, .5);
+}
+.fx-galeria img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--fx-ease-suave); }
+.fx-galeria__vel {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(180deg, rgba(58, 46, 31, .15), rgba(58, 46, 31, .45));
+  color: var(--offwhite);
+  opacity: 0;
+  transition: opacity .5s var(--fx-ease-suave);
+}
+.fx-galeria__vel svg { width: 26px; height: 26px; translate: 0 6px; transition: translate .6s var(--fx-ease-suave); }
+.fx-galeria a:is(:hover, :focus-visible) img { transform: scale(1.07); }
+.fx-galeria a:is(:hover, :focus-visible) .fx-galeria__vel { opacity: 1; }
+.fx-galeria a:is(:hover, :focus-visible) .fx-galeria__vel svg { translate: none; }
+@media (hover: none) { .fx-galeria a:active { transform: scale(.98); } }
+
+.js.fx-sd .fx-galeria li {
+  animation: fxCascata linear both;
+  animation-timeline: view();
+  animation-range: entry calc(var(--fx-col, 0) * 6%) cover calc(22% + var(--fx-col, 0) * 6%);
+}
+.js.fx-sd .fx-galeria img {
+  animation: fxMascara linear both;
+  animation-timeline: view();
+  animation-range: entry 5% cover 30%;
+}
+.fx-galeria li:nth-child(3n+2) { --fx-col: 1; }
+.fx-galeria li:nth-child(3n) { --fx-col: 2; }
+@media (min-width: 800px) {
+  .fx-galeria li:nth-child(n) { --fx-col: 0; }
+  .fx-galeria li:nth-child(2) { --fx-col: 1; } .fx-galeria li:nth-child(3) { --fx-col: 2; }
+  .fx-galeria li:nth-child(4) { --fx-col: 3; } .fx-galeria li:nth-child(5) { --fx-col: 4; }
+  .fx-galeria li:nth-child(6) { --fx-col: 5; }
+}

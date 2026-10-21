@@ -64,6 +64,48 @@
   });
 
   // ══════════════════════════════════════════════════════════════════════════
+  //  GALERIA ESTILO FEED DO INSTAGRAM (fotos do próprio catálogo)
+  // ══════════════════════════════════════════════════════════════════════════
+  const galeria = document.querySelector('.fx-galeria');
+  const ICONE_INSTA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>';
+  function montarGaleria() {
+    // `produtos` e `miniatura` vêm do loja.js (escopo global do script).
+    if (!galeria || galeria.childElementCount || typeof produtos === 'undefined' || !produtos.length) return false;
+    const vistas = new Set();
+    const fotos = [];
+    for (const p of produtos) {
+      if (!p.imagens || !p.imagens.length || vistas.has(p.categoria)) continue;
+      vistas.add(p.categoria);
+      fotos.push({ nome: p.nome, url: p.imagens[1] || p.imagens[0] }); // a 2ª foto, para não repetir as capas
+      if (fotos.length === 6) break;
+    }
+    if (fotos.length < 3) return true;
+    const link = document.getElementById('link-instagram');
+    const destino = link && link.href && !link.href.endsWith('#') ? link.href : 'https://instagram.com/usepafanny';
+    const reduzir = typeof miniatura === 'function' ? miniatura : u => u;
+    galeria.replaceChildren(...fotos.map(f => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = destino; a.target = '_blank'; a.rel = 'noopener';
+      a.setAttribute('aria-label', `${f.nome} — ver mais no Instagram da PAFANNY`);
+      const img = document.createElement('img');
+      img.src = reduzir(f.url, 360); img.alt = ''; img.loading = 'lazy'; img.decoding = 'async';
+      img.addEventListener('error', () => li.remove(), { once: true });
+      a.append(img);
+      a.insertAdjacentHTML('beforeend', `<span class="fx-galeria__vel" aria-hidden="true">${ICONE_INSTA}</span>`);
+      li.append(a);
+      return li;
+    }));
+    galeria.removeAttribute('hidden');
+    return true;
+  }
+  const gridCatalogo = document.getElementById('grid-produtos');
+  if (galeria && gridCatalogo && !montarGaleria()) {
+    const obs = new MutationObserver(() => { if (montarGaleria()) obs.disconnect(); });
+    obs.observe(gridCatalogo, { childList: true });
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
   //  FAIXA: botão de pausar (no toque não existe hover para parar o movimento)
   // ══════════════════════════════════════════════════════════════════════════
   document.querySelectorAll('.fx-faixa').forEach(faixa => {

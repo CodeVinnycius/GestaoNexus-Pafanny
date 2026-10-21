@@ -51,6 +51,8 @@
 
   let ultimoY = scrollY;
   let agendado = false;
+  let subindo = false;
+  const telaEstreita = matchMedia('(max-width: 699px)');
   function aoRolar() {
     agendado = false;
     const y = scrollY;
@@ -60,7 +62,9 @@
       if (y > 160 && y > ultimoY + 6 && !menuAberto && !focoNoHeader) header.classList.add('fx-escondido');
       else if (y < ultimoY - 6 || y <= 160) header.classList.remove('fx-escondido');
     }
-    topo.classList.toggle('fx-visivel', y > 900);
+    // No celular o botão só aparece rolando para cima (não fica sobre o conteúdo durante a leitura).
+    if (y < ultimoY - 6) subindo = true; else if (y > ultimoY + 6) subindo = false;
+    topo.classList.toggle('fx-visivel', y > 900 && (!telaEstreita.matches || subindo));
     if (!SCROLL_DRIVEN && barra) {
       const max = document.documentElement.scrollHeight - innerHeight;
       barra.style.transform = `scaleX(${max > 0 ? Math.min(1, y / max) : 0})`;

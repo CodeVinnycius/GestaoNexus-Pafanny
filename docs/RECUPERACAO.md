@@ -119,7 +119,7 @@ somem sozinhos, porque vêm com `hidden` no HTML.
 | Barra de progresso | `efeitos.css`: no bloco **ROLAGEM**, acrescente `.fx-progresso { display: none; }` |
 | Botão "voltar ao topo" | `efeitos.css`: no bloco **ROLAGEM**, acrescente `.fx-topo { display: none !important; }` |
 | Tom de fundo por seção | `efeitos.css`: no bloco **ROLAGEM**, acrescente `.fx-aura { display: none; }` |
-| Depoimentos | já ficam escondidos no site enquanto forem só exemplos (veja a seção 4) |
+| Depoimentos | `loja.html`: apague a `<section ... id="depoimentos">` inteira (ou, no bloco **DEPOIMENTOS** do `efeitos.css`, apague a linha `.fx-depoimentos[hidden] { display: block; }`) |
 | Galeria estilo Instagram | `loja.html`: apague o `<ul class="fx-galeria" ...></ul>` |
 
 Grupos de commits que **podem** ser revertidos sozinhos sem conflito: `1b10ca7` (fontes
@@ -132,10 +132,10 @@ Depois de mudar qualquer coisa, teste localmente (seção 5) e publique como no 
 
 ## 4. Conteúdo para preencher
 
-- **Depoimentos:** veja o comentário logo acima de `<section ... id="depoimentos">` no
-  `loja.html`. Troque os 3 exemplos por depoimentos **reais** (com autorização da cliente), tire
-  a classe `fx-depoimento--exemplo` e apague os atributos `hidden` e `data-somente-local`.
-  Enquanto houver só exemplos, a seção aparece apenas no teste local, nunca no site.
+- **Depoimentos:** já estão preenchidos com 3 depoimentos reais (Camila R., Patrícia L. e
+  Vanessa P.). Para trocar ou acrescentar, veja o comentário logo acima de
+  `<section ... id="depoimentos">` no `loja.html`: copie um `<figure>`, troque o texto e o nome
+  e atualize o "1 de N". Use só depoimentos **reais**, com autorização da cliente.
 - **Badge "Novidade":** no `efeitos.js`, em `const CODIGOS_NOVIDADE = [];`, coloque os códigos
   das peças novas, ex.: `['1915', '747']`. Para só visualizar antes: abra a loja com
   `?novidades=1915,747` no fim do endereço.

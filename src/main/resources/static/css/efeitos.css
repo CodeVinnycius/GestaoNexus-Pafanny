@@ -1109,6 +1109,10 @@ html.lenis, html.lenis body { height: auto; }
    Carrossel com arrastar (scroll-snap), setas, pontos e troca automática
    com pausa (js/secoes.js). Os modelos de preenchimento ficam marcados com
    borda tracejada e o selo "Exemplo" — e só aparecem no teste local. ── */
+/* A seção vem com [hidden] no HTML: sem este arquivo, ela some como os outros enfeites. */
+.fx-depoimentos[hidden] { display: block; }
+/* Sem JS as setas e a pausa não funcionam; o trilho continua dando para arrastar. */
+html:not(.js) .fx-depoimentos__controles { display: none; }
 .fx-depoimentos__carrossel { max-width: var(--container-max); margin: 0 auto; }
 .fx-depoimentos__trilho {
   display: grid;

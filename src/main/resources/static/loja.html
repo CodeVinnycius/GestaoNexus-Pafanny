@@ -268,41 +268,34 @@ setTimeout(function () { if (!window.lojaPronta) document.documentElement.classL
   </section>
 
   <!-- ══ DEPOIMENTOS ════════════════════════════════════
-       PRONTA PARA DEPOIMENTOS REAIS — nada aqui é inventado.
-       Enquanto houver só os exemplos, a seção fica escondida no site (hidden) e
-       aparece apenas no teste local (localhost, js/secoes.js).
-       Para publicar depoimentos de verdade:
-         1. troque o texto de cada <blockquote> e os dados do <figcaption>
-            (use só depoimentos reais, com autorização da cliente);
-         2. tire a classe "fx-depoimento--exemplo" de cada <figure>;
-         3. apague os atributos  hidden  e  data-somente-local  da <section> abaixo.
-       Pode ter quantos <figure> quiser (o carrossel se ajusta); atualize o "1 de N". -->
-  <section class="section fx-depoimentos" id="depoimentos" aria-labelledby="depoimentos-title" hidden data-somente-local>
+       Depoimentos REAIS de clientes, enviados pela dona da loja — nunca inventar.
+       A seção vem com hidden e é mostrada pelo css/efeitos.css (sem ele, some como os
+       outros enfeites). Para trocar ou acrescentar: copie um <figure>, troque o texto do
+       <blockquote> e o nome, e atualize o "1 de N" de todos. Opcional: um
+       <span class="fx-depoimento__info">Cidade · pijama que comprou</span> abaixo do nome. -->
+  <section class="section fx-depoimentos" id="depoimentos" aria-labelledby="depoimentos-title" hidden>
     <div class="section__head reveal">
       <span class="kicker">Quem já usa</span>
       <h2 class="section__title" id="depoimentos-title">O carinho de quem veste PAFANNY</h2>
     </div>
     <div class="fx-depoimentos__carrossel" role="region" aria-roledescription="carrossel" aria-label="Depoimentos de clientes">
       <div class="fx-depoimentos__trilho" tabindex="0">
-        <figure class="fx-depoimento fx-depoimento--exemplo" role="group" aria-roledescription="slide" aria-label="1 de 3">
-          <blockquote class="fx-depoimento__texto">[EXEMPLO 1 — troque por um depoimento real de cliente, com a autorização dela.]</blockquote>
+        <figure class="fx-depoimento" role="group" aria-roledescription="slide" aria-label="1 de 3">
+          <blockquote class="fx-depoimento__texto">Amei demais! O tecido é bem fresquinho, perfeito pro calor daqui. Já quero comprar outro de outra cor 😍</blockquote>
           <figcaption>
-            <span class="fx-depoimento__nome">[Nome da cliente]</span>
-            <span class="fx-depoimento__info">[Cidade · pijama que comprou]</span>
+            <span class="fx-depoimento__nome">Camila R.</span>
           </figcaption>
         </figure>
-        <figure class="fx-depoimento fx-depoimento--exemplo" role="group" aria-roledescription="slide" aria-label="2 de 3">
-          <blockquote class="fx-depoimento__texto">[EXEMPLO 2 — troque por um depoimento real de cliente, com a autorização dela.]</blockquote>
+        <figure class="fx-depoimento" role="group" aria-roledescription="slide" aria-label="2 de 3">
+          <blockquote class="fx-depoimento__texto">Tinha dúvida no tamanho, me ajudaram a escolher e serviu perfeito. Entrega bem embalada e rapidinha.</blockquote>
           <figcaption>
-            <span class="fx-depoimento__nome">[Nome da cliente]</span>
-            <span class="fx-depoimento__info">[Cidade · pijama que comprou]</span>
+            <span class="fx-depoimento__nome">Patrícia L.</span>
           </figcaption>
         </figure>
-        <figure class="fx-depoimento fx-depoimento--exemplo" role="group" aria-roledescription="slide" aria-label="3 de 3">
-          <blockquote class="fx-depoimento__texto">[EXEMPLO 3 — troque por um depoimento real de cliente, com a autorização dela.]</blockquote>
+        <figure class="fx-depoimento" role="group" aria-roledescription="slide" aria-label="3 de 3">
+          <blockquote class="fx-depoimento__texto">Demorei pra decidir qual estampa escolher porque todas são lindas 😅 A que eu peguei é ainda mais bonita pessoalmente.</blockquote>
           <figcaption>
-            <span class="fx-depoimento__nome">[Nome da cliente]</span>
-            <span class="fx-depoimento__info">[Cidade · pijama que comprou]</span>
+            <span class="fx-depoimento__nome">Vanessa P.</span>
           </figcaption>
         </figure>
       </div>

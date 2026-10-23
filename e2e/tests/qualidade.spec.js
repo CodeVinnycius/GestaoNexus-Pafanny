@@ -144,7 +144,7 @@ test('todos os arquivos da página respondem 200; os da loja com cache e gzip', 
   }
 });
 
-test('depoimentos de EXEMPLO nunca aparecem fora do teste local', async ({ page, baseURL }) => {
+test('depoimentos reais aparecem no site publicado, sem nenhum exemplo', async ({ page, baseURL }) => {
   // Simula o site publicado: o mesmo HTML servido com outro nome de host.
   await page.route('http://pafanny-teste.local/**', async r => {
     const res = await r.fetch({ url: r.request().url().replace('http://pafanny-teste.local', baseURL) });
@@ -152,8 +152,10 @@ test('depoimentos de EXEMPLO nunca aparecem fora do teste local', async ({ page,
   });
   await page.goto('http://pafanny-teste.local/');
   await page.waitForSelector('.produto-card');
-  await expect(page.locator('.fx-depoimento--exemplo').first()).toBeHidden();
-  await expect(page.locator('#depoimentos')).toBeHidden();
+  await expect(page.locator('#depoimentos')).toBeVisible();
+  await expect(page.locator('.fx-depoimento')).toHaveCount(3);
+  await expect(page.locator('.fx-depoimento--exemplo')).toHaveCount(0);
+  await expect(page.locator('#depoimentos')).not.toContainText(/EXEMPLO|\[Nome/);
 });
 
 test('sem os arquivos de efeitos, a página volta ao visual original (nada sobra)', async ({ page }) => {

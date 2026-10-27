@@ -601,24 +601,33 @@ const DISPONIBILIDADE_SCHEMA = {
   ESGOTADO:          'https://schema.org/OutOfStock'
 };
 
+// Endereço oficial (o mesmo do canonical), também quando a página abre pelo domínio do Railway.
+const SITE = 'https://pafanny.com.br';
+
 function injetarDadosEstruturados() {
-  const itens = produtos.filter(p => p.imagens && p.imagens.length).map((p, i) => {
+  // Sem preço o Google acusa erro no produto (a oferta é obrigatória): essas peças ficam de fora.
+  const itens = produtos.filter(p => p.imagens && p.imagens.length && p.preco != null).map((p, i) => {
     const produto = {
       '@type': 'Product',
       name: p.nome,
-      image: `${location.origin}${p.imagens[0]}`,
+      image: p.imagens.slice(0, 3).map(img => `${SITE}${img}`),
       description: p.descricao || undefined,
       sku: p.codigo || undefined,
-      brand: { '@type': 'Brand', name: config.nome || 'PAFANNY' }
+      category: p.categoria || undefined,
+      brand: { '@type': 'Brand', name: config.nome || 'PAFANNY' },
+      offers: {
+        '@type': 'Offer',
+        url: `${SITE}/#catalogo`,
+        priceCurrency: 'BRL',
+        price: p.preco.toFixed(2),
+        availability: DISPONIBILIDADE_SCHEMA[p.disponibilidade],
+        seller: { '@id': `${SITE}/#loja` }
+      }
     };
-    if (p.preco != null) {
-      produto.offers = { '@type': 'Offer', priceCurrency: 'BRL', price: p.preco.toFixed(2) };
-      const disponibilidade = DISPONIBILIDADE_SCHEMA[p.disponibilidade];
-      if (disponibilidade) produto.offers.availability = disponibilidade;
-    }
     return { '@type': 'ListItem', position: i + 1, item: produto };
   });
-  const dados = { '@context': 'https://schema.org', '@type': 'ItemList', itemListElement: itens };
+  if (!itens.length) return;
+  const dados = { '@context': 'https://schema.org', '@type': 'ItemList', name: `Pijamas ${config.nome || 'PAFANNY'}`, numberOfItems: itens.length, itemListElement: itens };
   const script = document.createElement('script');
   script.type = 'application/ld+json';
   script.textContent = JSON.stringify(dados);

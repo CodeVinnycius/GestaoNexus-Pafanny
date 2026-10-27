@@ -5,6 +5,10 @@ Allow: /js/
 Allow: /icons/
 Allow: /img/
 Allow: /uploads/
+Allow: /miniaturas/
+Allow: /fonts/
+# Catálogo público: o Google precisa dele para ver as peças (a regra mais específica vale)
+Allow: /api/loja/
 Disallow: /api/
 Disallow: /index.html
 Disallow: /admin.html

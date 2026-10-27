@@ -45,7 +45,7 @@ public class SecurityConfig {
                     "/", "/login.html",
                     "/css/**", "/js/**", "/icons/**", "/img/**", "/fonts/**",
                     "/manifest.json", "/sw.js",
-                    "/robots.txt", "/sitemap.xml"
+                    "/robots.txt", "/sitemap.xml", "/favicon.ico"
                 ).permitAll()
 
                 // Loja pública — catálogo, fotos de produto e a própria página

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @Transactional
@@ -35,7 +36,7 @@ public class EmpresaService {
     @Transactional(readOnly = true)
     public Empresa buscarPorId(Long id) {
         return repository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Empresa não encontrada."));
+            .orElseThrow(() -> new NoSuchElementException("Empresa não encontrada."));
     }
 
     public Empresa cadastrar(String nome, String login, String senha) {
@@ -43,7 +44,7 @@ public class EmpresaService {
         validarSenha(senha);
 
         if (repository.existsByLogin(login.trim()))
-            throw new RuntimeException("Já existe uma empresa com esse login.");
+            throw new IllegalArgumentException("Já existe uma empresa com esse login.");
 
         Empresa e = new Empresa(nome.trim(), login.trim(), encoder.encode(senha));
         return repository.save(e);
@@ -62,7 +63,7 @@ public class EmpresaService {
             validarLogin(login);
             String loginNovo = login.trim();
             if (!loginNovo.equals(e.getLogin()) && repository.existsByLogin(loginNovo))
-                throw new RuntimeException("Login já está em uso.");
+                throw new IllegalArgumentException("Login já está em uso.");
             e.setLogin(loginNovo);
         }
 

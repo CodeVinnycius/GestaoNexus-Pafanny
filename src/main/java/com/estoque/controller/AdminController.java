@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/admin/empresas")
@@ -50,7 +51,7 @@ public class AdminController {
             Empresa e = service.cadastrar(nome.trim(), login.trim(), senha);
             return ResponseEntity.status(HttpStatus.CREATED).body(e);
 
-        } catch (RuntimeException e) {
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.status(409).body(Map.of("erro", e.getMessage()));
         }
     }
@@ -58,15 +59,15 @@ public class AdminController {
     @PutMapping("/{id}")
     public ResponseEntity<?> atualizar(@PathVariable Long id,
                                         @RequestBody Map<String, Object> body) {
+        // Campo com tipo errado vira "não mudar", em vez de um ClassCastException na tela.
+        String  nome  = body.get("nome")  instanceof String s ? s : null;
+        String  login = body.get("login") instanceof String s ? s : null;
+        String  senha = body.get("senha") instanceof String s ? s : null;
+        Boolean ativo = body.get("ativo") instanceof Boolean b ? b : null;
         try {
-            String  nome     = (String)  body.get("nome");
-            String  login    = (String)  body.get("login");
-            String  senha    = (String)  body.get("senha");
-            Boolean ativo    = body.get("ativo") != null ? (Boolean) body.get("ativo") : null;
-
             Empresa e = service.atualizar(id, nome, login, senha, ativo);
             return ResponseEntity.ok(e);
-        } catch (RuntimeException e) {
+        } catch (IllegalArgumentException | NoSuchElementException e) {
             return ResponseEntity.badRequest().body(Map.of("erro", e.getMessage()));
         }
     }
@@ -76,7 +77,7 @@ public class AdminController {
         try {
             service.remover(id);
             return ResponseEntity.ok(Map.of("mensagem", "Empresa removida com sucesso."));
-        } catch (RuntimeException e) {
+        } catch (IllegalArgumentException | NoSuchElementException e) {
             return ResponseEntity.badRequest().body(Map.of("erro", e.getMessage()));
         }
     }

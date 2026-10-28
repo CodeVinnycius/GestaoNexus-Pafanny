@@ -15,12 +15,12 @@ import java.util.Map;
 @Transactional
 public class MovimentacaoService {
 
-    private final MovimentacaoRepository movRepo;
-    private final ProdutoRepository      prodRepo;
+    private final MovimentacaoRepository movimentacaoRepository;
+    private final ProdutoRepository      produtoRepository;
 
-    public MovimentacaoService(MovimentacaoRepository movRepo, ProdutoRepository prodRepo) {
-        this.movRepo  = movRepo;
-        this.prodRepo = prodRepo;
+    public MovimentacaoService(MovimentacaoRepository movimentacaoRepository, ProdutoRepository produtoRepository) {
+        this.movimentacaoRepository = movimentacaoRepository;
+        this.produtoRepository      = produtoRepository;
     }
 
     public Movimentacao registrar(Long produtoId,
@@ -30,7 +30,7 @@ public class MovimentacaoService {
                                    String motivo,
                                    Empresa empresa) {
 
-        Produto produto = prodRepo.findByIdAndEmpresa(produtoId, empresa)
+        Produto produto = produtoRepository.findByIdAndEmpresa(produtoId, empresa)
             .orElseThrow(() -> new RuntimeException("Produto não encontrado."));
 
         // O histórico guarda a quantidade com sinal (saída negativa, entrada positiva), então o
@@ -48,7 +48,7 @@ public class MovimentacaoService {
             throw new RuntimeException("Estoque insuficiente. Disponível: " + produto.getQuantidade());
 
         produto.setQuantidade(novaQtd);
-        prodRepo.save(produto);
+        produtoRepository.save(produto);
 
         // Preço de referência: venda para saídas, custo para entradas
         double precoRef = (tipo == TipoMovimentacao.VENDA)
@@ -66,22 +66,22 @@ public class MovimentacaoService {
         mov.setEmpresa(empresa);
         mov.setProduto(produto);
 
-        return movRepo.save(mov);
+        return movimentacaoRepository.save(mov);
     }
 
     @Transactional(readOnly = true)
     public List<Movimentacao> listar(Empresa empresa) {
-        return movRepo.findByEmpresaOrderByDataHoraDesc(empresa);
+        return movimentacaoRepository.findByEmpresaOrderByDataHoraDesc(empresa);
     }
 
     @Transactional(readOnly = true)
     public List<Movimentacao> listarPorTipo(Empresa empresa, TipoMovimentacao tipo) {
-        return movRepo.findByEmpresaAndTipoOrderByDataHoraDesc(empresa, tipo);
+        return movimentacaoRepository.findByEmpresaAndTipoOrderByDataHoraDesc(empresa, tipo);
     }
 
     @Transactional(readOnly = true)
     public double receitaTotalVendas(Empresa empresa) {
-        return movRepo.somarReceitaVendas(empresa);
+        return movimentacaoRepository.somarReceitaVendas(empresa);
     }
 
     // ══════════════════════════════════════════════════════════════════════════

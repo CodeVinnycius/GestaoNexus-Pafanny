@@ -30,15 +30,15 @@ public class ArmazenamentoImagemService {
         if (arquivo.getSize() > TAMANHO_MAX_BYTES)
             throw new IllegalArgumentException("Imagem maior que 5MB.");
 
-        String contentType = arquivo.getContentType();
-        if (contentType == null || !TIPOS_PERMITIDOS.contains(contentType))
+        String tipoArquivo = arquivo.getContentType();
+        if (tipoArquivo == null || !TIPOS_PERMITIDOS.contains(tipoArquivo))
             throw new IllegalArgumentException("Formato de imagem inválido. Use JPEG, PNG ou WebP.");
 
         String extensao = Map.of(
             "image/jpeg", ".jpg",
             "image/png",  ".png",
             "image/webp", ".webp"
-        ).get(contentType);
+        ).get(tipoArquivo);
 
         String nomeArquivo = UUID.randomUUID() + extensao;
 

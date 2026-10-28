@@ -31,7 +31,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
-            .cors(cors -> cors.configurationSource(corsSource()))
+            .cors(cors -> cors.configurationSource(configuracaoCors()))
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .headers(h -> h
                 .frameOptions(f -> f.deny())
@@ -81,7 +81,7 @@ public class SecurityConfig {
      * Liberar "*" deixaria qualquer site chamar a API com o token de quem estiver logado.
      */
     @Bean
-    public CorsConfigurationSource corsSource() {
+    public CorsConfigurationSource configuracaoCors() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOriginPatterns(List.of(
             "http://localhost:*",

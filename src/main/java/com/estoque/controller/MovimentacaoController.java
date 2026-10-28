@@ -44,7 +44,7 @@ public class MovimentacaoController {
             @AuthenticationPrincipal Empresa empresa) {
         try {
             Long   produtoId   = Long.parseLong(body.get("produtoId").toString());
-            String tipoStr     = body.get("tipo").toString();
+            String tipoTexto   = body.get("tipo").toString();
             int    quantidade  = Integer.parseInt(body.get("quantidade").toString());
             String responsavel = (String) body.getOrDefault("responsavel", "—");
             String motivo      = (String) body.getOrDefault("motivo", "");
@@ -52,7 +52,7 @@ public class MovimentacaoController {
             if (quantidade <= 0)
                 return ResponseEntity.badRequest().body(Map.of("erro", "Quantidade deve ser maior que zero."));
 
-            TipoMovimentacao tipo = TipoMovimentacao.valueOf(tipoStr.toUpperCase());
+            TipoMovimentacao tipo = TipoMovimentacao.valueOf(tipoTexto.toUpperCase());
             Movimentacao mov = service.registrar(produtoId, tipo, quantidade, responsavel, motivo, empresa);
             return ResponseEntity.ok(mov);
 

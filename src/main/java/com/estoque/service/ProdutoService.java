@@ -205,15 +205,15 @@ public class ProdutoService {
 
     @Transactional(readOnly = true)
     public Map<String, Double> resumoFinanceiro(Empresa empresa) {
-        double custoTotal  = repository.somarCustoTotal(empresa);
-        double valorVenda  = repository.somarValorVenda(empresa);
-        double lucroPot    = valorVenda - custoTotal;
-        double margem      = valorVenda > 0 ? (lucroPot / valorVenda) * 100 : 0;
+        double custoTotal     = repository.somarCustoTotal(empresa);
+        double valorVenda     = repository.somarValorVenda(empresa);
+        double lucroPotencial = valorVenda - custoTotal;
+        double margem         = valorVenda > 0 ? (lucroPotencial / valorVenda) * 100 : 0;
         return Map.of(
-            "custoTotal",    custoTotal,
-            "valorVenda",    valorVenda,
-            "lucroPotencial",lucroPot,
-            "margemMedia",   margem
+            "custoTotal",     custoTotal,
+            "valorVenda",     valorVenda,
+            "lucroPotencial", lucroPotencial,
+            "margemMedia",    margem
         );
     }
 }

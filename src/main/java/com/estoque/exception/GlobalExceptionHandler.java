@@ -19,17 +19,17 @@ public class GlobalExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(ProdutoNaoEncontradoException.class)
-    public ResponseEntity<Map<String, String>> handleNaoEncontrado(ProdutoNaoEncontradoException ex) {
+    public ResponseEntity<Map<String, String>> tratarProdutoNaoEncontrado(ProdutoNaoEncontradoException ex) {
         return erro(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     @ExceptionHandler(ProdutoDuplicadoException.class)
-    public ResponseEntity<Map<String, String>> handleDuplicado(ProdutoDuplicadoException ex) {
+    public ResponseEntity<Map<String, String>> tratarProdutoDuplicado(ProdutoDuplicadoException ex) {
         return erro(HttpStatus.CONFLICT, ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidacao(MethodArgumentNotValidException ex) {
+    public ResponseEntity<Map<String, Object>> tratarValidacao(MethodArgumentNotValidException ex) {
         Map<String, String> campos = new LinkedHashMap<>();
         for (FieldError fe : ex.getBindingResult().getFieldErrors())
             campos.put(fe.getField(), fe.getDefaultMessage());
@@ -41,18 +41,18 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, String>> handleIllegal(IllegalArgumentException ex) {
+    public ResponseEntity<Map<String, String>> tratarArgumentoInvalido(IllegalArgumentException ex) {
         return erro(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
     @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<Map<String, String>> handleNaoEncontradoGenerico(NoSuchElementException ex) {
+    public ResponseEntity<Map<String, String>> tratarNaoEncontrado(NoSuchElementException ex) {
         return erro(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     /** Recurso estático inexistente (ex: link de imagem quebrado) — 404 puro, sem logar como erro. */
     @ExceptionHandler(NoResourceFoundException.class)
-    public ResponseEntity<Map<String, String>> handleRecursoEstaticoAusente(NoResourceFoundException ex) {
+    public ResponseEntity<Map<String, String>> tratarRecursoEstaticoAusente(NoResourceFoundException ex) {
         return erro(HttpStatus.NOT_FOUND, "Recurso não encontrado.");
     }
 
@@ -61,7 +61,7 @@ public class GlobalExceptionHandler {
      * Previne vazamento de stack traces e detalhes do banco.
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, String>> handleGenerico(Exception ex) {
+    public ResponseEntity<Map<String, String>> tratarErroInesperado(Exception ex) {
         log.error("Erro interno: {}", ex.getMessage(), ex);
         return erro(HttpStatus.INTERNAL_SERVER_ERROR, "Ocorreu um erro interno. Tente novamente.");
     }

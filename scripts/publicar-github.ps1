@@ -66,11 +66,21 @@ Write-Ok "Identidade do Git: $nomeConfigurado <$emailConfigurado>"
 
 # -- 2. Inicializa repositorio se necessario --------------------
 Write-Passo "Verificando repositorio Git"
+$repoNovo = $false
 if (-not (Test-Path ".git")) {
     Invoke-GitOuAborta -GitArgs @("init") -MensagemErro "Falha ao rodar 'git init'."
     Write-Ok "Repositorio Git inicializado em $raiz"
+    $repoNovo = $true
 } else {
     Write-Ok "Repositorio Git ja existe"
+    # O script commita e da push na branch atual. Se ela nao for a -Branch, para aqui, antes de
+    # commitar qualquer coisa: renomear a branch de trabalho para main e dar push publicaria o site.
+    $atual = git rev-parse --abbrev-ref HEAD
+    if ($atual -ne $Branch) {
+        Write-Erro "Voce esta na branch '$atual', nao na '$Branch'."
+        Write-Host "  Troque com 'git switch $Branch' ou rode de novo com -Branch $atual."
+        exit 1
+    }
 }
 
 if (-not (Test-Path ".gitignore")) {
@@ -166,7 +176,10 @@ if (-not $arquivosStaged) {
 }
 
 # -- 6. Configura branch principal ------------------------------
-Invoke-GitOuAborta -GitArgs @("branch", "-M", $Branch) -MensagemErro "Falha ao renomear a branch para '$Branch'."
+# So num repositorio recem-criado: o git init pode ter criado "master".
+if ($repoNovo) {
+    Invoke-GitOuAborta -GitArgs @("branch", "-M", $Branch) -MensagemErro "Falha ao renomear a branch para '$Branch'."
+}
 
 # -- 7. Configura remoto -----------------------------------------
 Write-Passo "Verificando remoto 'origin'"

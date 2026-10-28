@@ -11,7 +11,7 @@ acha o caminho do projeto sozinho, mas os exemplos daqui partem de lá.
 | `rodar-loja-local.ps1` | Sobe a loja em `http://localhost:8081` usando uma **cópia** do banco e das fotos (em `%TEMP%\pafanny-teste`), com senhas descartáveis. | Antes de publicar qualquer mudança, e para rodar os testes do `e2e/`. |
 | `atualizar-precos-nomes.ps1` | Muda preço e/ou nome dos modelos (categorias) pela API, mostrando uma prévia antes de gravar. As regras ficam no topo do arquivo. | Quando a loja reajusta preços ou renomeia um modelo. |
 | `enviar-para-railway.ps1` | Baixa um backup do banco local, junta com as fotos e envia para o servidor no ar. O servidor aplica no próximo reinício. | Raramente: só para levar o banco local inteiro para produção. **Substitui todo o banco do servidor.** |
-| `publicar-github.ps1` | `git add`/`commit`/`push` com uma varredura simples por segredos antes. | Era o jeito de publicar no começo; hoje publico com git direto, seguindo o `docs/RECUPERACAO.md`. **Cuidado:** ele roda `git branch -M main`, que renomeia a branch em que você estiver para `main`, e o push publica o site. |
+| `publicar-github.ps1` | `git add`/`commit`/`push` com uma varredura simples por segredos antes. | Era o jeito de publicar no começo; hoje publico com git direto, seguindo o `docs/RECUPERACAO.md`. Só roda na branch passada em `-Branch` (padrão `main`); em outra, para antes de commitar. Lembre que o push na `main` publica o site. |
 
 Lembretes:
 

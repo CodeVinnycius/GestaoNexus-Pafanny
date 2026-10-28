@@ -21,7 +21,7 @@ public class MovimentacaoController {
         this.service = service;
     }
 
-    /** Lista todo o histórico da empresa (mais recentes primeiro) */
+    /** Histórico da empresa, do mais recente para o mais antigo. */
     @GetMapping
     public ResponseEntity<List<Movimentacao>> listar(
             @RequestParam(required = false) String tipo,
@@ -38,7 +38,6 @@ public class MovimentacaoController {
         return ResponseEntity.ok(service.listar(empresa));
     }
 
-    /** Registra qualquer tipo de movimentação */
     @PostMapping
     public ResponseEntity<?> registrar(
             @RequestBody Map<String, Object> body,
@@ -64,7 +63,6 @@ public class MovimentacaoController {
         }
     }
 
-    /** Receita total de vendas */
     @GetMapping("/receita")
     public ResponseEntity<Map<String, Double>> receita(@AuthenticationPrincipal Empresa empresa) {
         return ResponseEntity.ok(Map.of("receita", service.receitaTotalVendas(empresa)));

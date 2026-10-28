@@ -23,8 +23,6 @@ public class MovimentacaoService {
         this.prodRepo = prodRepo;
     }
 
-    // ── Registrar movimentação genérica ───────────────────────────────────────
-
     public Movimentacao registrar(Long produtoId,
                                    TipoMovimentacao tipo,
                                    int quantidade,
@@ -35,7 +33,9 @@ public class MovimentacaoService {
         Produto produto = prodRepo.findByIdAndEmpresa(produtoId, empresa)
             .orElseThrow(() -> new RuntimeException("Produto não encontrado."));
 
-        // Calcula delta de estoque conforme o tipo
+        // O histórico guarda a quantidade com sinal (saída negativa, entrada positiva), então o
+        // saldo de um período é só a soma. Em venda, entrada e devolução o sinal vem do tipo
+        // (por isso o abs); só o ajuste usa o número como veio.
         int delta = switch (tipo) {
             case VENDA   -> -Math.abs(quantidade);   // saída
             case ENTRADA -> +Math.abs(quantidade);   // entrada
@@ -68,8 +68,6 @@ public class MovimentacaoService {
 
         return movRepo.save(mov);
     }
-
-    // ── Listar histórico ──────────────────────────────────────────────────────
 
     @Transactional(readOnly = true)
     public List<Movimentacao> listar(Empresa empresa) {

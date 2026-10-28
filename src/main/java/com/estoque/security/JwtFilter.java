@@ -13,6 +13,11 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Lê o "Bearer" de cada requisição e coloca a empresa logada no contexto do Spring.
+ * A empresa é buscada no banco toda vez, de propósito: assim, desativar uma empresa no painel
+ * corta o acesso na hora, sem esperar o token expirar.
+ */
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 

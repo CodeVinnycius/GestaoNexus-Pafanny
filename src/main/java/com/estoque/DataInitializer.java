@@ -9,6 +9,10 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+/**
+ * Na primeira subida (banco vazio) cria o admin com a senha de APP_ADMIN_SENHA. Sem isso não
+ * haveria como entrar para cadastrar a primeira empresa.
+ */
 @Component
 public class DataInitializer implements CommandLineRunner {
 
@@ -34,7 +38,7 @@ public class DataInitializer implements CommandLineRunner {
             Empresa admin = new Empresa("Administrador", adminLogin, encoder.encode(adminSenha));
             admin.setAdmin(true);
             repository.save(admin);
-            // SEGURANÇA: nunca loga a senha em produção
+            // Só o login vai para o log, a senha nunca.
             log.info("Admin criado com login: {}", adminLogin);
         } else if (redefinirSenha) {
             Empresa admin = repository.findByLogin(adminLogin).orElseThrow();

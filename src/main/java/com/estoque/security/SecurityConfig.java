@@ -40,7 +40,7 @@ public class SecurityConfig {
                     ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
             )
             .authorizeHttpRequests(auth -> auth
-                // Arquivos públicos — apenas estáticos necessários para o login
+                // Arquivos estáticos públicos: tela de login, PWA, ícones e o que o Google lê
                 .requestMatchers(
                     "/", "/login.html",
                     "/css/**", "/js/**", "/icons/**", "/img/**", "/fonts/**",
@@ -54,21 +54,20 @@ public class SecurityConfig {
                     "/api/loja/**"
                 ).permitAll()
 
-                // Auth: público
                 .requestMatchers("/api/auth/login").permitAll()
 
-                // index.html e admin.html: exigem token válido (verificado pelo JS)
-                // O back-end protege os dados; as páginas HTML são abertas mas inúteis sem token
+                // O HTML do painel abre sem login, mas não mostra nada sem token: quem protege
+                // os dados é a API. O JS só redireciona para o login.
                 .requestMatchers("/index.html", "/admin.html").permitAll()
 
-                // Admin: apenas ROLE_ADMIN — verificado no back-end
+                // Empresas, backup e restauração
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-                // Dados da empresa: exige autenticação
+                // Aqui só se exige estar logado; a separação entre empresas fica nos services,
+                // que recebem a empresa logada em cada consulta.
                 .requestMatchers("/api/produtos/**").hasRole("EMPRESA")
                 .requestMatchers("/api/movimentacoes/**").hasRole("EMPRESA")
 
-                // Tudo mais: autenticado
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
@@ -77,9 +76,9 @@ public class SecurityConfig {
     }
 
     /**
-     * CORS restrito: apenas origem local em dev.
-     * Em produção, ajuste para o domínio real do front-end.
-     * NUNCA use allowedOrigins("*") com JWT.
+     * Em produção o front e a API saem do mesmo domínio, então o navegador nem usa CORS.
+     * Isto só existe para desenvolver com o front aberto em outra porta local.
+     * Liberar "*" deixaria qualquer site chamar a API com o token de quem estiver logado.
      */
     @Bean
     public CorsConfigurationSource corsSource() {
@@ -101,7 +100,8 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // Força 12 — mais seguro que o padrão 10
+        // Custo 12 em vez do padrão 10: cada tentativa fica 4x mais cara para quem tenta
+        // adivinhar senhas, e o login continua rápido para quem acerta.
         return new BCryptPasswordEncoder(12);
     }
 }

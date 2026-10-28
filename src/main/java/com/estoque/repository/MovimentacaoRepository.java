@@ -23,7 +23,8 @@ public interface MovimentacaoRepository extends JpaRepository<Movimentacao, Long
     /** Remove todo o histórico de uma empresa — usado só quando a empresa inteira está sendo excluída. */
     void deleteByEmpresa(Empresa empresa);
 
-    @Query("SELECT COALESCE(SUM(m.quantidade * m.precoUnitario), 0) " +
+    /** As vendas ficam gravadas com quantidade negativa (saída); a receita usa o valor absoluto. */
+    @Query("SELECT COALESCE(SUM(ABS(m.quantidade) * m.precoUnitario), 0) " +
            "FROM Movimentacao m WHERE m.empresa = :empresa AND m.tipo = 'VENDA'")
     double somarReceitaVendas(Empresa empresa);
 }

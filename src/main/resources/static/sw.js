@@ -3,8 +3,8 @@
  * Estratégia: Network First para API, Cache First para assets estáticos
  */
 
-const CACHE_NAME    = 'estoque-v7';
-const CACHE_STATIC  = 'estoque-static-v7';
+const CACHE_NAME    = 'estoque-v8';
+const CACHE_STATIC  = 'estoque-static-v8';
 
 // A loja pública não passa pelo cache: quem abriu o sistema no mesmo navegador
 // via a versão antiga da loja depois de cada publicação.

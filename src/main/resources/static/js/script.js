@@ -506,13 +506,13 @@ function atualizarPreviewMov() {
   const tipo = $('mov-tipo').value;
   const prev = $('mov-preview');
 
-  if (!opt || !opt.value || qtd <= 0) { prev.style.display = 'none'; return; }
+  if (!opt || !opt.value || qtd === 0 || (qtd < 0 && tipo !== 'AJUSTE')) { prev.style.display = 'none'; return; }
 
   const precoVenda = parseFloat(opt.dataset.venda) || 0;
   const precoCusto = parseFloat(opt.dataset.custo) || 0;
   const estoqueAtual = parseInt(opt.dataset.qtd) || 0;
   const preco = (tipo === 'VENDA') ? precoVenda : precoCusto;
-  const total = qtd * preco;
+  const total = Math.abs(qtd) * preco;
 
   let label = '';
   if (tipo === 'VENDA') {
@@ -521,7 +521,7 @@ function atualizarPreviewMov() {
   } else if (tipo === 'ENTRADA') {
     label = `Entrada de ${qtd} un. × ${moeda(precoCusto)} custo | Estoque após: ${estoqueAtual + qtd}`;
   } else if (tipo === 'AJUSTE') {
-    label = `Ajuste de ${qtd} un. no estoque`;
+    label = `Ajuste de ${qtd > 0 ? '+' : ''}${qtd} un. | Estoque após: ${estoqueAtual + qtd}`;
   } else {
     label = `Devolução de ${qtd} un. | Estoque após: ${estoqueAtual + qtd}`;
   }
@@ -533,7 +533,12 @@ function atualizarPreviewMov() {
 
 $('mov-produto').addEventListener('change', atualizarPreviewMov);
 $('mov-quantidade').addEventListener('input', atualizarPreviewMov);
-$('mov-tipo').addEventListener('change', atualizarPreviewMov);
+$('mov-tipo').addEventListener('change', () => {
+  // Só o ajuste aceita número negativo (ex.: -1 para uma peça danificada).
+  if ($('mov-tipo').value === 'AJUSTE') $('mov-quantidade').removeAttribute('min');
+  else $('mov-quantidade').min = '1';
+  atualizarPreviewMov();
+});
 
 $('form-mov').addEventListener('submit', async e => {
   e.preventDefault();
@@ -550,7 +555,8 @@ $('form-mov').addEventListener('submit', async e => {
   clrErr('err-mov-produto'); clrErr('err-mov-qtd'); clrErr('err-mov-resp');
 
   if (!produtoId)   { setErr('err-mov-produto', 'Selecione um produto.'); }
-  if (!quantidade || quantidade <= 0) { setErr('err-mov-qtd', 'Quantidade deve ser ≥ 1.'); }
+  if (tipo === 'AJUSTE' && !quantidade)        { setErr('err-mov-qtd', 'O ajuste não pode ser zero.'); }
+  if (tipo !== 'AJUSTE' && !(quantidade > 0)) { setErr('err-mov-qtd', 'Quantidade deve ser ≥ 1.'); }
   if (!responsavel) { setErr('err-mov-resp', 'Informe o responsável.'); }
   if (!ok) return;
 

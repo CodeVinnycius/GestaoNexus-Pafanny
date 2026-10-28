@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @Service
 @Transactional
@@ -30,8 +31,10 @@ public class MovimentacaoService {
                                    String motivo,
                                    Empresa empresa) {
 
-        Produto produto = produtoRepository.findByIdAndEmpresa(produtoId, empresa)
-            .orElseThrow(() -> new RuntimeException("Produto não encontrado."));
+        // Lido com trava até o fim da transação: duas vendas ao mesmo tempo da mesma peça
+        // esperam uma pela outra, em vez de as duas verem o mesmo estoque e venderem a mais.
+        Produto produto = produtoRepository.buscarParaAtualizar(produtoId, empresa)
+            .orElseThrow(() -> new NoSuchElementException("Produto não encontrado."));
 
         // O histórico guarda a quantidade com sinal (saída negativa, entrada positiva), então o
         // saldo de um período é só a soma. Em venda, entrada e devolução o sinal vem do tipo
@@ -45,7 +48,7 @@ public class MovimentacaoService {
 
         int novaQtd = produto.getQuantidade() + delta;
         if (novaQtd < 0)
-            throw new RuntimeException("Estoque insuficiente. Disponível: " + produto.getQuantidade());
+            throw new IllegalArgumentException("Estoque insuficiente. Disponível: " + produto.getQuantidade());
 
         produto.setQuantidade(novaQtd);
         produtoRepository.save(produto);

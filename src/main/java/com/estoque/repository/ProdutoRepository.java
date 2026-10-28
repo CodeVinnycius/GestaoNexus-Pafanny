@@ -2,7 +2,9 @@ package com.estoque.repository;
 
 import com.estoque.model.Empresa;
 import com.estoque.model.Produto;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -17,6 +19,11 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
     List<Produto> findByEmpresaAndNomeContainingIgnoreCase(Empresa empresa, String termo);
 
     Optional<Produto> findByIdAndEmpresa(Long id, Empresa empresa);
+
+    /** Mesmo que findByIdAndEmpresa, mas trava a linha até o fim da transação (SELECT ... FOR UPDATE). */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT p FROM Produto p WHERE p.id = :id AND p.empresa = :empresa")
+    Optional<Produto> buscarParaAtualizar(Long id, Empresa empresa);
 
     boolean existsByNomeIgnoreCaseAndEmpresa(String nome, Empresa empresa);
 

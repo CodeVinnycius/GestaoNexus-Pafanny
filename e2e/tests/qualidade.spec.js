@@ -1,4 +1,4 @@
-// Armadilhas do CLAUDE.md: overflow horizontal, site sem JS, reduced-motion e nomes que bloqueadores barram.
+// Armadilhas que já derrubaram um projeto parecido: overflow horizontal, site sem JS, reduced-motion e nomes que bloqueadores barram.
 const { test, expect } = require('@playwright/test');
 
 const LARGURAS = [320, 375, 414, 768, 1024, 1440, 1920];

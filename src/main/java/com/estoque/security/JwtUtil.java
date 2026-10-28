@@ -48,5 +48,4 @@ public class JwtUtil {
 
     public String extrairLogin(String token)   { return extrairClaims(token).getSubject(); }
     public Long extrairEmpresaId(String token) { return extrairClaims(token).get("empresaId", Long.class); }
-    public boolean extrairAdmin(String token)  { return Boolean.TRUE.equals(extrairClaims(token).get("admin", Boolean.class)); }
 }

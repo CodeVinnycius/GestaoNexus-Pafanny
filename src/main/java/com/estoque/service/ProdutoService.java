@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @Service
 @Transactional
@@ -34,11 +35,26 @@ public class ProdutoService {
         this.movimentacaoRepository = movimentacaoRepository;
     }
 
-    public Produto cadastrar(Produto produto, Empresa empresa) {
-        if (repository.existsByNomeIgnoreCaseAndEmpresa(produto.getNome(), empresa))
-            throw new ProdutoDuplicadoException(produto.getNome());
-        produto.setEmpresa(empresa);
-        return repository.save(produto);
+    public Produto cadastrar(Produto dados, Empresa empresa) {
+        if (repository.existsByNomeIgnoreCaseAndEmpresa(dados.getNome(), empresa))
+            throw new ProdutoDuplicadoException(dados.getNome());
+
+        // Copia só os campos do formulário. Salvar o objeto que veio do JSON aceitaria um "id"
+        // (o save() trata como atualização de um produto existente, até de outra empresa) e
+        // fotos ou variações que não são dele. Fotos e variações têm endpoints próprios.
+        Produto p = new Produto();
+        p.setNome(dados.getNome());
+        p.setQuantidade(dados.getQuantidade());
+        p.setPrecoCusto(dados.getPrecoCusto());
+        p.setPrecoVenda(dados.getPrecoVenda());
+        p.setDescricao(dados.getDescricao());
+        p.setCategoria(dados.getCategoria());
+        p.setVisivelLoja(dados.isVisivelLoja());
+        p.setEstampa(dados.getEstampa());
+        p.setCodigo(dados.getCodigo());
+        p.setDisponibilidade(dados.getDisponibilidade());
+        p.setEmpresa(empresa);
+        return repository.save(p);
     }
 
     @Transactional(readOnly = true)
@@ -170,9 +186,14 @@ public class ProdutoService {
         return repository.save(p);
     }
 
+    /**
+     * Tira a foto do produto. Falha se ela não for deste produto: o controller apaga o arquivo
+     * logo depois, e sem essa conferência daria para apagar a foto de qualquer empresa.
+     */
     public Produto removerImagem(Long produtoId, String url, Empresa empresa) {
         Produto p = buscarPorId(produtoId, empresa);
-        p.getImagens().remove(url);
+        if (!p.getImagens().remove(url))
+            throw new NoSuchElementException("Essa foto não pertence a este produto.");
         return repository.save(p);
     }
 

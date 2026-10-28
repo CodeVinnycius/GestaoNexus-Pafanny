@@ -1,5 +1,6 @@
 package com.estoque.controller;
 
+import com.estoque.exception.CredenciaisInvalidasException;
 import com.estoque.security.LoginRateLimiter;
 import com.estoque.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,7 +38,7 @@ public class AuthController {
             Map<String, Object> resultado = authService.login(login, senha);
             rateLimiter.registrarSucesso(ip, login);
             return ResponseEntity.ok(resultado);
-        } catch (RuntimeException e) {
+        } catch (CredenciaisInvalidasException e) {
             rateLimiter.registrarFalha(ip, login);
             return ResponseEntity.status(401).body(Map.of("erro", e.getMessage()));
         }

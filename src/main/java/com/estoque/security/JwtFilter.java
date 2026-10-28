@@ -40,11 +40,15 @@ public class JwtFilter extends OncePerRequestFilter {
             String token = header.substring(7);
             if (jwtUtil.validar(token)) {
                 String login = jwtUtil.extrairLogin(token);
-                boolean admin = jwtUtil.extrairAdmin(token);
+                Long empresaId = jwtUtil.extrairEmpresaId(token);
 
-                Empresa empresa = empresaRepository.findByLogin(login).orElse(null);
+                // O id confere que o token é desta empresa: um login renomeado e reaproveitado
+                // por outra não herda os tokens antigos. E o papel de admin vem do banco, não do token.
+                Empresa empresa = empresaRepository.findByLogin(login)
+                    .filter(e -> e.getId().equals(empresaId))
+                    .orElse(null);
                 if (empresa != null && empresa.isAtivo()) {
-                    List<SimpleGrantedAuthority> roles = admin
+                    List<SimpleGrantedAuthority> roles = empresa.isAdmin()
                         ? List.of(new SimpleGrantedAuthority("ROLE_ADMIN"),
                                   new SimpleGrantedAuthority("ROLE_EMPRESA"))
                         : List.of(new SimpleGrantedAuthority("ROLE_EMPRESA"));

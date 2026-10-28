@@ -70,7 +70,8 @@ O que está implementado e o motivo de cada escolha:
 | Sem segredo no código | O `application.properties` só referencia `${VARIAVEIS}`. Para senha e chave JWT não existe valor padrão, de propósito. |
 | Falhar em vez de subir inseguro | Sem `APP_JWT_SECRET` ou `APP_ADMIN_SENHA`, o Spring não consegue resolver a propriedade e a aplicação não inicia. |
 | Senhas com hash | BCrypt com custo 12 (o padrão é 10). A senha nunca é guardada nem registrada em log. |
-| Tokens | JWT assinado (HS256), com expiração de 8 horas por padrão. A empresa é conferida no banco a cada requisição, então desativar uma empresa corta o acesso na hora. |
+| Tokens | JWT assinado (HS256), com expiração de 8 horas por padrão. A empresa é conferida no banco a cada requisição (pelo id, não só pelo login), e o papel de admin vem do banco, não do token. Desativar uma empresa corta o acesso na hora. |
+| Login | Senha errada, login inexistente e empresa inativa com senha errada recebem a mesma resposta, no mesmo tempo: não dá para descobrir quais logins existem. |
 | Separação entre empresas | Os services recebem a empresa logada e filtram por ela; o catálogo público usa um DTO próprio que não carrega custo nem dados internos. |
 | Força bruta no login | Depois de 8 erros do mesmo IP (ou 30 no mesmo login) em 15 minutos, o login responde `429`. A contagem fica em memória e zera quando o servidor reinicia. |
 | Erros | Exceções inesperadas viram uma mensagem genérica; o stack trace fica só no log do servidor. |
@@ -116,8 +117,13 @@ publicar. Os outros scripts estão explicados em [`scripts/README.md`](scripts/R
 ### Testes
 
 ```bash
-mvn test                  # sobe o contexto do Spring
+mvn test
 ```
+
+Não precisa de variável de ambiente: os testes usam um banco em memória e pastas
+temporárias (`src/test/resources/config/`), então nunca encostam no banco de verdade. Eles
+passam pela API como o painel usa: separação entre empresas, login, tokens, movimentações
+de estoque e o cadastro de empresas.
 
 Os testes da vitrine ficam em `e2e/` (Playwright) e rodam contra o site local, nunca contra
 produção: overflow horizontal em 17 tamanhos de tela, página sem JavaScript,
@@ -244,21 +250,23 @@ GestaoNexus-Pafanny/
 - **Peso do HTML importa mais do que parece.** Quando o HTML comprimido passou de ~14 KB, a
   primeira pintura no 4G ficou quase meio segundo mais lenta. O que não precisa estar no HTML
   inicial é montado depois pelo JavaScript.
+- **"Filtrar pela empresa" não basta.** Todas as consultas filtravam pela empresa logada, e
+  mesmo assim dava para uma empresa tomar o produto de outra: o cadastro salvava o objeto que
+  vinha do JSON, com `id` e tudo, e o `save()` tratava como atualização. Foi um teste com duas
+  empresas que mostrou. Desde então, cada regra de separação tem um teste assim.
 - **Conteúdo tem que existir sem JavaScript.** Animação que começa com `opacity: 0` e espera
   o JS deixa a página em branco se o script falhar. Os estados iniciais das animações só
   valem quando o `<html>` recebe a classe `.js`.
 
 ## Próximos passos
 
-- **Testes automatizados da API.** Hoje o `mvn test` só confere se o contexto sobe; quem
-  testa de verdade são os testes da vitrine. Quero cobrir login, separação entre empresas e
-  movimentações de estoque.
+- **Mais testes da API**, cobrindo produtos, variações e fotos com o mesmo cuidado que já
+  existe para login, tokens e movimentações.
 - **Movimentações com tamanho/cor.** Uma venda baixa o total do produto, mas não a variação
-  vendida. Para quem usa grade de tamanhos, o ideal é registrar a venda já na variação.
-- **Ajuste negativo pela tela de movimentações.** O service aceita, mas a API recusa
-  quantidade menor ou igual a zero.
-- **Validação mais estrita nas entradas da API**, com DTOs próprios em vez das entidades
-  JPA nos endpoints de escrita.
+  vendida, e a próxima edição da grade recalcula o total. Para quem usa grade de tamanhos, o
+  ideal é registrar a venda já na variação.
+- **DTOs próprios nos endpoints de escrita**, em vez de receber as entidades JPA. Foi
+  justamente receber a entidade inteira que deixou passar um `id` no cadastro de produto.
 - **Migrações de banco versionadas** (Flyway) no lugar do `ddl-auto=update`.
 - **Limite de tentativas de login que sobreviva a um reinício**, se algum dia houver mais de
   uma instância.

@@ -6,9 +6,30 @@ O detalhe de cada item está no `git log`.
 
 ## Ainda não publicado
 
+### Segurança
+- Separação entre empresas reforçada: o cadastro de produto não aceita mais `id`, fotos nem
+  variações vindos do cliente; remover uma foto confere se ela é do produto; o token só vale
+  para a empresa que o recebeu, e o papel de admin vem do banco.
+- Login não revela mais quais logins existem nem se a empresa está inativa para quem não
+  sabe a senha.
+- O script `publicar-github.ps1` não renomeia mais a branch de trabalho para `main`.
+
+### Correções
+- A receita do painel aparecia negativa.
+- O ajuste de estoque aceita número negativo (por exemplo, para uma peça danificada).
+- Mensagens de erro certas nas movimentações e no cadastro de empresas, sem erros internos
+  do Java na tela.
+- Duas vendas da mesma peça ao mesmo tempo não vendem mais do que o estoque.
+- Nome de empresa com aspas não quebra mais o botão de remover no painel do admin.
+
+### Testes
+- Testes da API para separação entre empresas, login, tokens, movimentações e cadastro de
+  empresas. O `mvn test` roda sem variáveis de ambiente e nunca abre o banco real.
+
 ### Organização
 - Scripts saem da raiz para `scripts/`, com um `scripts/README.md` explicando cada um.
-- README reescrito, com as decisões técnicas, desafios, próximos passos e ferramentas.
+- README reescrito, com as decisões técnicas, desafios, próximos passos e ferramentas, e print
+  da vitrine com o visual atual.
 - `CONTRIBUTING.md` e este `CHANGELOG.md`.
 - Comentários do back-end revisados e nomes padronizados em português, sem mudar endpoints
   nem JSON.

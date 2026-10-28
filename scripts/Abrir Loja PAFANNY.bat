@@ -1,13 +1,14 @@
 @echo off
 title PAFANNY - Sistema (nao feche esta janela)
-cd /d "%~dp0"
+rem Este arquivo fica na pasta scripts; o jar e o .env.producao.bat ficam na raiz do projeto.
+cd /d "%~dp0.."
 
-if not exist "%~dp0.env.producao.bat" (
+if not exist ".env.producao.bat" (
     powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0gerar-credenciais.ps1"
     pause
 )
 
-call "%~dp0.env.producao.bat"
+call ".env.producao.bat"
 
 netstat -ano | findstr /R /C:":8080 .*LISTENING" >nul
 if %errorlevel%==0 (

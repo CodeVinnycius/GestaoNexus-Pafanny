@@ -10,8 +10,8 @@
     3. So grava depois que voce confirmar com "s"
 
   Uso:
-    .\atualizar-precos-nomes.ps1                                 (servidor no ar: https://pafanny.com.br)
-    .\atualizar-precos-nomes.ps1 -Url http://localhost:8080      (sistema local)
+    .\scripts\atualizar-precos-nomes.ps1                             (servidor no ar: https://pafanny.com.br)
+    .\scripts\atualizar-precos-nomes.ps1 -Url http://localhost:8080  (sistema local)
 
   Quando um modelo e renomeado, a categoria e o inicio do nome de cada produto mudam juntos
   (ex.: "Baby Doll Manga Stitch" -> "Baby Look Stitch"). Codigo, estampa, fotos e estoque nao mudam.

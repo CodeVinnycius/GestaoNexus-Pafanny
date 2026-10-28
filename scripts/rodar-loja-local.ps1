@@ -7,9 +7,9 @@
   - Porta padrão 8081 (a 8080 costuma estar ocupada por outro projeto).
 
   Uso (PowerShell, dentro da pasta EstoqueSpring):
-    .\rodar-loja-local.ps1
-    .\rodar-loja-local.ps1 -Porta 8090
-    .\rodar-loja-local.ps1 -CopiarBancoDeNovo     # descarta a cópia antiga e copia o banco atual
+    .\scripts\rodar-loja-local.ps1
+    .\scripts\rodar-loja-local.ps1 -Porta 8090
+    .\scripts\rodar-loja-local.ps1 -CopiarBancoDeNovo     # descarta a cópia antiga e copia o banco atual
   Depois abra http://localhost:8081 . Para parar: Ctrl+C nesta janela.
 #>
 param(
@@ -17,7 +17,8 @@ param(
     [switch]$CopiarBancoDeNovo
 )
 
-Set-Location -Path $PSScriptRoot
+# O script fica em scripts\; data\ e o pom.xml estão na pasta de cima.
+Set-Location -Path (Split-Path $PSScriptRoot -Parent)
 $copia = Join-Path $env:TEMP "pafanny-teste"
 
 if ($CopiarBancoDeNovo -and (Test-Path $copia)) { Remove-Item -Recurse -Force $copia }

@@ -155,7 +155,7 @@ Em **Variables**, defina (gere valores novos — não reaproveite os do `.env.pr
 
 | Variável | Valor |
 |---|---|
-| `APP_JWT_SECRET` | `openssl rand -base64 32` (ou gere via `gerar-credenciais.ps1`) |
+| `APP_JWT_SECRET` | `openssl rand -base64 32` (ou gere via `scripts/gerar-credenciais.ps1`) |
 | `APP_ADMIN_SENHA` | senha forte só de produção |
 | `DB_URL` | `jdbc:h2:file:/data/estoque;DB_CLOSE_ON_EXIT=FALSE` |
 | `APP_UPLOADS_DIR` | `/data/uploads` |
@@ -174,7 +174,7 @@ trocando `SEU-DOMINIO-AQUI.com` pelo domínio real, faça commit e deixe o Railw
 O servidor novo nasce vazio. Para levar produtos, preços, fotos e logins do sistema local, rode no PC
 onde o sistema está (com ele ligado):
 ```powershell
-.\enviar-para-railway.ps1 -UrlRailway https://SEU-APP.up.railway.app
+.\scripts\enviar-para-railway.ps1 -UrlRailway https://SEU-APP.up.railway.app
 ```
 O script baixa um backup do banco local, junta com `data\uploads` e envia para `/api/admin/empresas/restaurar`
 (só admin). O envio fica pendente; **reinicie o serviço no Railway** para aplicar. O banco anterior do servidor

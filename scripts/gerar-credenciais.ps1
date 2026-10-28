@@ -1,7 +1,7 @@
 <#
   Gera as credenciais de producao (JWT secret + senha do admin) na
   primeira vez que o sistema roda nesta maquina, e salva num arquivo
-  local (.env.producao.bat) que NUNCA vai para o Git.
+  local (.env.producao.bat, na raiz do projeto) que NUNCA vai para o Git.
 #>
 
 $bytes = New-Object byte[] 32
@@ -22,7 +22,7 @@ $linhas = @(
     "set `"APP_LOJA_INSTAGRAM=usepafanny`""
 )
 
-Set-Content -Path ".env.producao.bat" -Value $linhas -Encoding ASCII
+Set-Content -Path (Join-Path $PSScriptRoot "..\.env.producao.bat") -Value $linhas -Encoding ASCII
 
 Write-Host ""
 Write-Host " ============================================"

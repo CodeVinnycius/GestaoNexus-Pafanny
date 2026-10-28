@@ -9,9 +9,9 @@
     - Pede confirmacao explicita antes de cada acao irreversivel
 
   Uso:
-    .\publicar-github.ps1
-    .\publicar-github.ps1 -Mensagem "feat: ajustes na vitrine"
-    .\publicar-github.ps1 -RepoUrl "https://github.com/usuario/repo.git"
+    .\scripts\publicar-github.ps1
+    .\scripts\publicar-github.ps1 -Mensagem "feat: ajustes na vitrine"
+    .\scripts\publicar-github.ps1 -RepoUrl "https://github.com/usuario/repo.git"
   ==============================================================
 #>
 
@@ -26,7 +26,8 @@ param(
 # tipo "LF will be replaced by CRLF") vira um erro terminante e derruba
 # o script. Cada comando git critico abaixo checa $LASTEXITCODE na mao.
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
-Set-Location -Path $PSScriptRoot
+$raiz = Split-Path $PSScriptRoot -Parent   # o script fica em scripts\; o repositorio e a pasta de cima
+Set-Location -Path $raiz
 
 function Write-Passo($texto) { Write-Host "`n==> $texto" -ForegroundColor Cyan }
 function Write-Ok($texto)    { Write-Host "  [OK] $texto" -ForegroundColor Green }
@@ -67,7 +68,7 @@ Write-Ok "Identidade do Git: $nomeConfigurado <$emailConfigurado>"
 Write-Passo "Verificando repositorio Git"
 if (-not (Test-Path ".git")) {
     Invoke-GitOuAborta -GitArgs @("init") -MensagemErro "Falha ao rodar 'git init'."
-    Write-Ok "Repositorio Git inicializado em $PSScriptRoot"
+    Write-Ok "Repositorio Git inicializado em $raiz"
 } else {
     Write-Ok "Repositorio Git ja existe"
 }

@@ -148,7 +148,7 @@ O site local usa uma **cópia** do banco e das fotos, nunca as originais. No Pow
 `EstoqueSpring`:
 
 ```powershell
-.\rodar-loja-local.ps1            # abre em http://localhost:8081
+.\scripts\rodar-loja-local.ps1    # abre em http://localhost:8081
 ```
 
 Testes (outra janela, na pasta `EstoqueSpring\e2e`; na primeira vez rode `npm install`):

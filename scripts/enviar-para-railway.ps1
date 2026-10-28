@@ -11,7 +11,7 @@
     4. Depois disso, voce REINICIA o servico no painel do Railway para aplicar
 
   Uso:
-    .\enviar-para-railway.ps1 -UrlRailway https://seu-app.up.railway.app
+    .\scripts\enviar-para-railway.ps1 -UrlRailway https://seu-app.up.railway.app
 
   Atencao: substitui TODO o banco do servidor no ar (o banco anterior fica guardado como
   estoque.mv.db.bak-AAAAMMDD-HHMMSS no volume). Rode com o sistema local ligado.
@@ -21,7 +21,7 @@
 param(
     [Parameter(Mandatory = $true)][string]$UrlRailway,
     [string]$UrlLocal = "http://localhost:8080",
-    [string]$PastaUploads = (Join-Path $PSScriptRoot "data\uploads")
+    [string]$PastaUploads = (Join-Path $PSScriptRoot "..\data\uploads")
 )
 
 $ErrorActionPreference = "Stop"

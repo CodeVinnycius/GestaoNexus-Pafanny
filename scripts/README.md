@@ -18,6 +18,6 @@ Lembretes:
 - Push na `main` publica o site (o Railway faz o deploy sozinho). O passo a passo seguro está
   em [`docs/RECUPERACAO.md`](../docs/RECUPERACAO.md).
 - Os `.ps1` sem acento são de propósito: o Windows PowerShell 5.1 lê arquivo sem BOM como ANSI
-  e estragaria os acentos.
+  e estragaria os acentos. O `rodar-loja-local.ps1` tem acentos porque está salvo com BOM.
 - Se o Windows bloquear a execução, rode uma vez na sessão:
   `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass`.
